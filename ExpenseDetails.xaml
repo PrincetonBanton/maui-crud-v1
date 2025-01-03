@@ -1,0 +1,37 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiCrud.ExpenseDetailsPage"
+             BackgroundColor="White">
+
+    <StackLayout Margin="20" Padding="20">
+        <Label Text="Expense Details" FontSize="24" HorizontalOptions="Center" TextColor="Black" />
+
+        <!-- Form for Expense -->
+        <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
+        <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
+        <DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" />
+
+        <Picker x:Name="categoryPicker" Title="Category" TitleColor="Black" BackgroundColor="Grey" 
+                ItemDisplayBinding="{Binding Name}" Margin="0,0,0,10" />
+
+        <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" />
+
+        <!-- ListView for Expenses -->
+        <Label Text="Expense List" TextColor="Grey" Margin="10,20,0,0"/>
+        <ListView x:Name="expenseListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="ExpenseListView_ItemTapped">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Padding="10">
+                            <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                            <Label Text="{Binding Amount, StringFormat='${0:N2}'}" FontSize="14" TextColor="Black" />
+                            <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />
+                            <BoxView HeightRequest="1" BackgroundColor="White" Margin="0,10,0,0" />
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+    </StackLayout>
+</ContentPage>

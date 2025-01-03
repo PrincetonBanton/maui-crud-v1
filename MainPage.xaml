@@ -3,22 +3,32 @@
              x:Class="MauiCrud.MainPage"
              BackgroundColor="White">
     
-    <StackLayout Padding="20">
+    <StackLayout Margin="20" Padding="20">
         <Label Text="Expense Categories" FontSize="24" HorizontalOptions="Center" TextColor="Black" />
-        <Picker x:Name="expenseCategoriesPicker" Title="Category" BackgroundColor="Grey" ItemDisplayBinding="{Binding Name}"  />
-        <ListView x:Name="expenseCategoriesListView"
-                  Margin="0,10,0,0"
-                  HasUnevenRows="True">
+        <!-- Add Form -->
+        <Entry x:Name="nameEntry" Placeholder="Category Name" TextColor="black" />
+        <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
+        <Button Text="Add" Clicked="OnAddButtonClicked" Margin="0,0,0,20"/>
+
+        <!-- Picker and ListView -->
+        <Picker x:Name="expenseCategoriesPicker" Title="Dropdown" TitleColor="Black" BackgroundColor="Grey" 
+                ItemDisplayBinding="{Binding Name}" Margin="0,0,0,10" />
+        <Label Text="Category List" TextColor="Grey"/>
+        <ListView x:Name="expenseCategoriesListView" HasUnevenRows="True" BackgroundColor="Grey" 
+                  ItemTapped="expenseCategoriesListView_ItemTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="10">
                             <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Description}" FontSize="14" TextColor="Black" />
+                            <!-- Borderline -->
+                            <BoxView HeightRequest="1" BackgroundColor="White" Margin="0,10,0,0" />
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Button Text="Add Expense" Clicked="OnAddExpenseButtonClicked" Margin="0,0,0,20"/>
     </StackLayout>
 </ContentPage>
