@@ -1,10 +1,10 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiCrud.MainPage"
+             Title="Expense Category" 
              BackgroundColor="White">
-    
+
     <StackLayout Margin="20" Padding="20">
-        <Label Text="Expense Categories" FontSize="24" HorizontalOptions="Center" TextColor="Black" />
         <!-- Add Form -->
         <Entry x:Name="nameEntry" Placeholder="Category Name" TextColor="black" />
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
@@ -29,6 +29,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button Text="Add Expense" Clicked="OnAddExpenseButtonClicked" Margin="0,0,0,20"/>
+        <Button Text="Expense Page" Clicked="OnAddExpenseButtonClicked" Margin="0,20,0,0"/>
+        <Button Text="Revenue Page" Clicked="OnAddRevenueButtonClicked" />
     </StackLayout>
 </ContentPage>

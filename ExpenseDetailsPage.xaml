@@ -1,11 +1,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiCrud.ExpenseDetailsPage"
-             BackgroundColor="White">
+             Title="Expense Details"
+             BackgroundColor="LightBlue">
 
     <StackLayout Margin="20" Padding="20">
-        <Label Text="Expense Details" FontSize="24" HorizontalOptions="Center" TextColor="Black" />
-
         <!-- Form for Expense -->
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
         <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />

@@ -145,7 +145,73 @@ namespace MauiCrud.Services
             }
         }
 
+        //REVENUE
+        // Fetch all revenues
+        public async Task<List<Revenue>> GetRevenuesAsync()
+        {
+            using var httpClient = new HttpClient();
+            try
+            {
+                var response = await httpClient.GetFromJsonAsync<List<Revenue>>($"{BaseUrl}/revenues");
+                return response ?? new List<Revenue>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching revenues: {ex.Message}");
+                return new List<Revenue>();
+            }
+        }
+
+        // Create a new revenue
+        public async Task<bool> CreateRevenueAsync(Revenue revenue)
+        {
+            using var httpClient = new HttpClient();
+            try
+            {
+                var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/revenues", revenue);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating revenue: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Update an existing revenue
+        public async Task<bool> UpdateRevenueAsync(Revenue revenue)
+        {
+            using var httpClient = new HttpClient();
+            try
+            {
+                var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/revenues/{revenue.RevenueId}", revenue);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating revenue: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Delete a revenue
+        public async Task<bool> DeleteRevenueAsync(int id)
+        {
+            using var httpClient = new HttpClient();
+            try
+            {
+                var response = await httpClient.DeleteAsync($"{BaseUrl}/revenues/{id}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting revenue: {ex.Message}");
+                return false;
+            }
+        }
 
     }
-
 }
+
+
+
