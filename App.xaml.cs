@@ -8,8 +8,8 @@ namespace MauiCrud
             InitializeComponent();
 
             //MainPage = new AppShell();
-            //MainPage = new NavigationPage(new MainPage());
-            MainPage = new NavigationPage (new ExpenseCategoryPage());
+            //MainPage = new NavigationPage (new ExpenseCategoryPage());
+            MainPage = new NavigationPage(new DashBoard());
         }
     }
 }

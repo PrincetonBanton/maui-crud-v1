@@ -7,6 +7,7 @@ namespace MauiCrud.Services
     {
         private const string BaseUrl = "https://localhost:7236/api";
 
+        //EXPENSE 
         public async Task<List<ExpenseCategory>> GetExpenseCategoriesAsync()
         {
             using var httpClient = new HttpClient();

@@ -7,7 +7,6 @@ namespace MauiCrud.Pages
     {
         private readonly ApiService _apiService;
         private Expense _expense; // To track the expense being edited
-
         public DateTime CurrentDate { get; set; } = DateTime.Now;
 
         public ExpensePage(Expense expense = null)

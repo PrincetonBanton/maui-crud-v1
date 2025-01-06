@@ -143,7 +143,7 @@ public partial class ExpenseCategoryPage : ContentPage
     private async void OnAddRevenueButtonClicked(object sender, EventArgs e)
     {
         // Navigate to ExpenseDetails page to add a new expense
-        await Navigation.PushAsync(new RevenueDetailsPage());
+        await Navigation.PushAsync(new RevenuePage());
     }
 }
 

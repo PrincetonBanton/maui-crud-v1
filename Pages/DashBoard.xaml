@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             BackgroundColor="White"
+             x:Class="MauiCrud.Pages.DashBoard">
+    <VerticalStackLayout>
+        <Grid Margin="10" ColumnDefinitions="*,*" HeightRequest="200">
+            <!-- Expense Frame (Left) -->
+            <Frame BackgroundColor="#F06A67" Padding="10" CornerRadius="3" Grid.Column="0" VerticalOptions="FillAndExpand">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnExpenseFrameTapped"/>
+                </Frame.GestureRecognizers>
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="0.00"  VerticalOptions="Center" FontSize="80" TextColor="White"  />
+                    <Label Text="Total Expense"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Revenue Frame (Right) -->
+            <Frame BackgroundColor="#3C4EF0"  Padding="10" CornerRadius="3" Grid.Column="1" VerticalOptions="FillAndExpand">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRevenueFrameTapped" />
+                </Frame.GestureRecognizers>
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="0.00" VerticalOptions="Center" FontSize="80" TextColor="White"  />
+                    <Label Text="Total Revenue"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+        <Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0"/>
+        <Image Source="graph_trial.png" Aspect="AspectFit" WidthRequest="300"/>
+    </VerticalStackLayout>
+</ContentPage>

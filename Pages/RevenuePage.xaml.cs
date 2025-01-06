@@ -1,16 +1,16 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
 
-namespace MauiCrud
+namespace MauiCrud.Pages
 {
-    public partial class RevenueDetailsPage : ContentPage
+    public partial class RevenuePage : ContentPage
     {
         private readonly ApiService _apiService;
         private Revenue _revenue; // To track the revenue being edited
 
         public DateTime CurrentDate { get; set; } = DateTime.Now;
 
-        public RevenueDetailsPage(Revenue revenue = null)
+        public RevenuePage(Revenue revenue = null)
         {
             InitializeComponent();
             _apiService = new ApiService();
