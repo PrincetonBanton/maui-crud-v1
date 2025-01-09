@@ -1,4 +1,3 @@
-using MauiCrud.Pages;
 using MauiCrud.Models;
 using MauiCrud.Services;
 
@@ -6,144 +5,83 @@ namespace MauiCrud.Pages;
 
 public partial class ExpenseCategoryPage : ContentPage
 {
-    private readonly ApiService _apiService;
-    private ExpenseCategory _selectedCategory; // To track the category being edited
-    private Expense _selectedExpense;
-    public DateTime CurrentDate { get; set; } = DateTime.Now;
+    private readonly ApiService _apiService = new();
+    private ExpenseCategory _currentCategory = new();
 
     public ExpenseCategoryPage()
     {
         InitializeComponent();
-        _apiService = new ApiService();
         LoadExpenseCategories();
-        //LoadExpenses();
     }
 
     private async void LoadExpenseCategories()
     {
         var categories = await _apiService.GetExpenseCategoriesAsync();
-
-        // Ensure data is not null or empty
-        if (categories != null && categories.Any())
-        {
-            expenseCategoriesListView.ItemsSource = categories;
-            //expenseCategoriesPicker.ItemsSource = categories;
-        }
-        else
-        {
-            await DisplayAlert("No Data", "No categories found.", "OK");
-        }
+        expenseCategoriesListView.ItemsSource = categories ?? new List<ExpenseCategory>();
     }
 
-    private async void OnAddButtonClicked(object sender, EventArgs e)
+    private async void OnSaveButtonClicked(object sender, EventArgs e)
     {
-        var name = nameEntry.Text;
-        var description = descriptionEntry.Text;
-
-        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(description))
+        if (string.IsNullOrWhiteSpace(nameEntry.Text) || string.IsNullOrWhiteSpace(descriptionEntry.Text))
         {
             await DisplayAlert("Validation Error", "Name and description cannot be empty.", "OK");
             return;
         }
 
-        if (_selectedCategory == null)
+        _currentCategory.Name = nameEntry.Text;
+        _currentCategory.Description = descriptionEntry.Text;
+
+        bool success = _currentCategory.ExpenseCategoryId == 0
+            ? await _apiService.CreateExpenseCategoryAsync(_currentCategory)
+            : await _apiService.UpdateExpenseCategoryAsync(_currentCategory);
+
+        await DisplayAlert(success ? "Success" : "Error", success ? "Category saved successfully." : "Failed to save category.", "OK");
+
+        if (success)
         {
-            // Create a new category
-            var newCategory = new ExpenseCategory { Name = name, Description = description };
-
-            if (await _apiService.CreateExpenseCategoryAsync(newCategory))
-            {
-                await DisplayAlert("Success", "Category added successfully.", "OK");
-                ClearForm();
-                LoadExpenseCategories();
-            }
-            else
-            {
-                await DisplayAlert("Error", "Failed to add category.", "OK");
-            }
-        }
-        else
-        {
-            // Update the existing category
-            _selectedCategory.Name = name;
-            _selectedCategory.Description = description;
-
-            if (await _apiService.UpdateExpenseCategoryAsync(_selectedCategory))
-            {
-                await DisplayAlert("Success", "Category updated successfully.", "OK");
-                ClearForm();
-                LoadExpenseCategories();
-            }
-            else
-            {
-                await DisplayAlert("Error", "Failed to update category.", "OK");
-            }
-
-            // Clear the selected category after editing
-            _selectedCategory = null;
+            ClearForm();
+            LoadExpenseCategories();
         }
     }
 
-    private async void expenseCategoriesListView_ItemTapped(object sender, ItemTappedEventArgs e)
+    private async void ExpenseCategoriesListView_ItemTapped(object sender, ItemTappedEventArgs e)
     {
-        // Get the tapped item
-        if (e.Item is ExpenseCategory selectedCategory)
+        if (e.Item is not ExpenseCategory selectedCategory) return;
+
+        string action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
+
+        if (action == "Edit")
         {
-            // Show the action sheet
-            var action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
-
-            switch (action)
+            _currentCategory = selectedCategory;
+            nameEntry.Text = selectedCategory.Name;
+            descriptionEntry.Text = selectedCategory.Description;
+        }
+        else if (action == "Delete" && await DisplayAlert("Confirm Delete", $"Delete '{selectedCategory.Name}'?", "Yes", "No"))
+        {
+            if (await _apiService.DeleteExpenseCategoryAsync(selectedCategory.ExpenseCategoryId))
             {
-                case "Edit":
-                    // Set the selected category and populate the form
-                    nameEntry.Text = selectedCategory.Name;
-                    descriptionEntry.Text = selectedCategory.Description;
-                    _selectedCategory = selectedCategory; // Track the category being edited
-                    break;
-
-                case "Delete":
-                    // Confirm before deletion
-                    var confirm = await DisplayAlert("Confirm Delete", $"Are you sure you want to delete {selectedCategory.Name}?", "Yes", "No");
-                    if (confirm)
-                    {
-                        if (await _apiService.DeleteExpenseCategoryAsync(selectedCategory.ExpenseCategoryId))
-                        {
-                            await DisplayAlert("Success", "Category deleted successfully.", "OK");
-                            LoadExpenseCategories(); // Reload the list
-                        }
-                        else
-                        {
-                            await DisplayAlert("Error", "Failed to delete category.", "OK");
-                        }
-                    }
-                    break;
-
-                default:
-                    // Do nothing if "Cancel" is selected
-                    break;
+                await DisplayAlert("Success", "Category deleted.", "OK");
+                LoadExpenseCategories();
+            }
+            else
+            {
+                await DisplayAlert("Error", "Failed to delete category.", "OK");
             }
         }
 
-        // Deselect the tapped item
         ((ListView)sender).SelectedItem = null;
     }
 
     private void ClearForm()
     {
+        _currentCategory = new ExpenseCategory();
         nameEntry.Text = string.Empty;
         descriptionEntry.Text = string.Empty;
-        _selectedCategory = null; // Clear the selected category
     }
 
     private async void OnAddExpenseButtonClicked(object sender, EventArgs e)
-    {
-        // Navigate to ExpenseDetails page to add a new expense
-        await Navigation.PushAsync(new ExpensePage());
-    }
-    private async void OnAddRevenueButtonClicked(object sender, EventArgs e)
-    {
-        // Navigate to ExpenseDetails page to add a new expense
-        await Navigation.PushAsync(new RevenuePage());
-    }
-}
+        => await Navigation.PushAsync(new ExpensePage());
 
+    private async void OnAddRevenueButtonClicked(object sender, EventArgs e)
+        => await Navigation.PushAsync(new RevenuePage());
+}

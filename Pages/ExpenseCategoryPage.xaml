@@ -8,13 +8,13 @@
         <!-- Add Form -->
         <Entry x:Name="nameEntry" Placeholder="Category Name" TextColor="black" />
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
-        <Button Text="Add" Clicked="OnAddButtonClicked" Margin="0,0,0,20"/>
+        <Button Text="Add" Clicked="OnSaveButtonClicked" Margin="0,0,0,20"/>
 
         <!-- Picker and ListView -->
         <!--<Picker x:Name="expenseCategoriesPicker" Title="Dropdown" TitleColor="Black" BackgroundColor="Grey" 
                 ItemDisplayBinding="{Binding Name}" Margin="0,0,0,10" />-->
         <ListView x:Name="expenseCategoriesListView" HasUnevenRows="True" BackgroundColor="Grey" 
-                  ItemTapped="expenseCategoriesListView_ItemTapped">
+                  ItemTapped="ExpenseCategoriesListView_ItemTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>

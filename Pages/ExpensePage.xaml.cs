@@ -5,129 +5,121 @@ namespace MauiCrud.Pages
 {
     public partial class ExpensePage : ContentPage
     {
-        private readonly ApiService _apiService;
-        private Expense _expense; // To track the expense being edited
-        public DateTime CurrentDate { get; set; } = DateTime.Now;
+        private bool _isInternetAvailable;
+        private readonly ApiService _apiService = new();
+        //private readonly LocalDbService _localDbService = new(); // Service for fetching from the local database
+        private Expense _currentExpense = new();
 
         public ExpensePage(Expense expense = null)
         {
             InitializeComponent();
-            _apiService = new ApiService();
+            CheckConnectivity(); // Check connectivity on page load
+            _currentExpense = expense ?? new Expense();
+            BindExpenseToForm();
+        }
 
-            if (expense != null)
+        private async void CheckConnectivity()
+        {
+            await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
+            _isInternetAvailable = ConnectivityService.Instance.IsInternetAvailable;
+
+            if (_isInternetAvailable)
             {
-                _expense = expense;
-                descriptionEntry.Text = expense.Description;
-                amountEntry.Text = expense.Amount.ToString();
-                expenseDatePicker.Date = expense.ExpenseDate;
-                categoryPicker.SelectedItem = expense.ExpenseCategory;
-            }
-            else
-            {
-                _expense = new Expense();
+                LoadCategories();
+                LoadExpenses();
+                return;
             }
 
-            LoadCategories();
-            LoadExpenses();
+            await DisplayAlert("Offline Mode", "Fetching data from local database.", "OK");
+            // LoadCategoriesFromLocalDb();
+            // LoadExpensesFromLocalDb();
+        }
+
+
+        private void BindExpenseToForm()
+        {
+            descriptionEntry.Text = _currentExpense.Description;
+            amountEntry.Text = _currentExpense.Amount > 0 ? _currentExpense.Amount.ToString() : string.Empty;
+            expenseDatePicker.Date = _currentExpense.ExpenseDate != default ? _currentExpense.ExpenseDate : DateTime.Now;
+            categoryPicker.SelectedItem = _currentExpense.ExpenseCategory;
         }
 
         private async void LoadCategories()
-        {
-            var categories = await _apiService.GetExpenseCategoriesAsync();
-            categoryPicker.ItemsSource = categories;
-        }
+            => categoryPicker.ItemsSource = await _apiService.GetExpenseCategoriesAsync();
 
         private async void LoadExpenses()
-        {
-            var expenses = await _apiService.GetExpensesAsync();
-            expenseListView.ItemsSource = expenses;
-        }
+            => expenseListView.ItemsSource = await _apiService.GetExpensesAsync();
 
+        //private async void LoadCategoriesFromLocalDb()
+        //    => categoryPicker.ItemsSource = await _localDbService.GetExpenseCategoriesAsync();
+
+        //private async void LoadExpensesFromLocalDb()
+        //    => expenseListView.ItemsSource = await _localDbService.GetExpensesAsync();
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
-            _expense.Description = descriptionEntry.Text;
-            _expense.Amount = decimal.Parse(amountEntry.Text);
-            _expense.ExpenseDate = expenseDatePicker.Date;
-            _expense.ExpenseCategoryId = ((ExpenseCategory)categoryPicker.SelectedItem).ExpenseCategoryId;
+            _currentExpense.Description = descriptionEntry.Text;
+            _currentExpense.Amount = decimal.TryParse(amountEntry.Text, out var amount) ? amount : 0;
+            _currentExpense.ExpenseDate = expenseDatePicker.Date;
+            _currentExpense.ExpenseCategoryId = (categoryPicker.SelectedItem as ExpenseCategory)?.ExpenseCategoryId ?? 0;
 
             bool success;
 
-            if (_expense.ExpenseId == 0)
+            if (_isInternetAvailable)
             {
-                // New Expense
-                success = await _apiService.CreateExpenseAsync(_expense);
+                success = _currentExpense.ExpenseId == 0
+                    ? await _apiService.CreateExpenseAsync(_currentExpense)
+                    : await _apiService.UpdateExpenseAsync(_currentExpense);
             }
             else
             {
-                // Update Expense
-                success = await _apiService.UpdateExpenseAsync(_expense);
+                success = false;
+                //success = _currentExpense.ExpenseId == 0
+                //    ? await LocalDbService.CreateExpenseAsync(_currentExpense) // LocalDbService.CreateExpenseAsync should be implemented
+                //    : await LocalDbService.UpdateExpenseAsync(_currentExpense); // LocalDbService.UpdateExpenseAsync should be implemented
             }
+
+            await DisplayAlert(success ? "Success" : "Error", success ? "Expense saved." : "Failed to save expense.", "OK");
 
             if (success)
             {
-                await DisplayAlert("Success", "Expense saved successfully.", "OK");
                 ClearForm();
-                LoadExpenses(); // Refresh the list of expenses
-            }
-            else
-            {
-                await DisplayAlert("Error", "Failed to save expense.", "OK");
+                CheckConnectivity(); // Reload data after save
             }
         }
 
+
         private async void ExpenseListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            // Get the tapped expense item
-            if (e.Item is Expense selectedExpense)
+            if (e.Item is not Expense selectedExpense) return;
+
+            string action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
+            if (action == "Edit")
             {
-                // Show action sheet for editing or deleting
-                var action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
-
-                switch (action)
+                _currentExpense = selectedExpense;
+                BindExpenseToForm();
+            }
+            else if (action == "Delete" && await DisplayAlert("Confirm", "Delete this expense?", "Yes", "No"))
+            {
+                if (await _apiService.DeleteExpenseAsync(selectedExpense.ExpenseId))
                 {
-                    case "Edit":
-                        // Set the selected expense and populate the form
-                        descriptionEntry.Text = selectedExpense.Description;
-                        amountEntry.Text = selectedExpense.Amount.ToString();
-                        expenseDatePicker.Date = selectedExpense.ExpenseDate;
-                        categoryPicker.SelectedItem = selectedExpense.ExpenseCategory;
-                        _expense = selectedExpense; // Track the expense being edited
-                        break;
-
-                    case "Delete":
-                        // Confirm before deleting the expense
-                        var confirm = await DisplayAlert("Confirm Delete", $"Are you sure you want to delete the expense '{selectedExpense.Description}'?", "Yes", "No");
-                        if (confirm)
-                        {
-                            if (await _apiService.DeleteExpenseAsync(selectedExpense.ExpenseId))
-                            {
-                                await DisplayAlert("Success", "Expense deleted successfully.", "OK");
-                                LoadExpenses(); // Reload the list of expenses
-                            }
-                            else
-                            {
-                                await DisplayAlert("Error", "Failed to delete expense.", "OK");
-                            }
-                        }
-                        break;
-
-                    default:
-                        // Do nothing if "Cancel" is selected
-                        break;
+                    await DisplayAlert("Success", "Expense deleted.", "OK");
+                    CheckConnectivity(); // Reload data after delete
+                }
+                else
+                {
+                    await DisplayAlert("Error", "Failed to delete expense.", "OK");
                 }
             }
-
-            // Deselect the tapped item
             ((ListView)sender).SelectedItem = null;
         }
 
         private void ClearForm()
         {
+            _currentExpense = new Expense();
             descriptionEntry.Text = string.Empty;
             amountEntry.Text = string.Empty;
             expenseDatePicker.Date = DateTime.Now;
             categoryPicker.SelectedItem = null;
-            _expense = null; // Clear the selected expense
         }
     }
 }

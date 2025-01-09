@@ -3,7 +3,7 @@ using MauiCrud.Models;
 
 namespace MauiCrud.Services
 {
-    public class ApiService
+    public class ApiService1
     {
         private const string BaseUrl = "https://localhost:7236/api";
         private readonly HttpClient _httpClient = new();
