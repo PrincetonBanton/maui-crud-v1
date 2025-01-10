@@ -27,6 +27,15 @@ namespace MauiCrud.Pages
             internetStatusLabel.Text = _isInternetAvailable ? "Online" : "Offline";
             internetStatusLabel.TextColor = _isInternetAvailable ? Colors.Green : Colors.Red;
 
+            // Check if the Expense table has data
+            var localExpenses = await _databaseService.GetExpensesAsync();
+            string localDataStatus = localExpenses.Any() ? "Local database has data." : "Local database is empty.";
+
+            // Display alert with connectivity and database status
+            await DisplayAlert("Connectivity Status",
+                $"Status: {(_isInternetAvailable ? "Online" : "Offline")}\n{localDataStatus}",
+                "OK");
+
             if (_isInternetAvailable)
             {
                 LoadOnlineData();
@@ -37,6 +46,7 @@ namespace MauiCrud.Pages
                 LoadOfflineData();
             }
         }
+
 
 
         private void BindExpenseToForm()
