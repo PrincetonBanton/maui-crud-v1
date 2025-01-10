@@ -12,7 +12,6 @@ public partial class DashBoard : ContentPage
 
     private async void CheckConnectivity()
     {
-        await DisplayAlert("Debug", "Entered CheckConnectivity method", "OK");
         await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
     }
     private async void OnExpenseFrameTapped(object sender, EventArgs e)
@@ -24,5 +23,4 @@ public partial class DashBoard : ContentPage
     {
         await Navigation.PushAsync(new RevenuePage());
     }
-
 }

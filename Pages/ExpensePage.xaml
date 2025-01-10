@@ -4,6 +4,9 @@
              BackgroundColor="white">
 
     <StackLayout Margin="10" Padding="10" >
+        <!-- Internet Status -->
+        <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
+        
         <!-- Form for Expense -->
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
         <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
@@ -18,7 +21,7 @@
                     <ViewCell>
                         <StackLayout Padding="5">
                             <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
-                            <Label Text="{Binding Amount, StringFormat='${0:N2}'}" FontSize="14" TextColor="Black" />
+                            <Label Text="{Binding Amount, StringFormat='{0:N2}'}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />
                             <BoxView HeightRequest="1" BackgroundColor="White" Margin="0,5,0,0" />
                         </StackLayout>
