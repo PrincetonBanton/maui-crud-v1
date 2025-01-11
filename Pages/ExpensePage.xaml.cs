@@ -5,15 +5,15 @@ namespace MauiCrud.Pages
 {
     public partial class ExpensePage : ContentPage
     {
+        private Expense _currentExpense = new();
         private bool _isInternetAvailable;
         private readonly ApiService _apiService = new();
         private readonly DatabaseService _databaseService = new();
-        private Expense _currentExpense = new();
 
         public ExpensePage(Expense expense = null)
         {
             InitializeComponent();
-            CheckConnectivity(); // Check connectivity on page load
+            CheckConnectivity(); 
             _currentExpense = expense ?? new Expense();
             BindExpenseToForm();
         }
@@ -27,28 +27,48 @@ namespace MauiCrud.Pages
             internetStatusLabel.Text = _isInternetAvailable ? "Online" : "Offline";
             internetStatusLabel.TextColor = _isInternetAvailable ? Colors.Green : Colors.Red;
 
-            // Check if the Expense table has data
-            var localExpenses = await _databaseService.GetExpensesAsync();
-            string localDataStatus = localExpenses.Any() ? "Local database has data." : "Local database is empty.";
-
-            // Display alert with connectivity and database status
-            await DisplayAlert("Connectivity Status",
-                $"Status: {(_isInternetAvailable ? "Online" : "Offline")}\n{localDataStatus}",
-                "OK");
-
             if (_isInternetAvailable)
             {
+                var localExpenses = await _databaseService.GetExpensesAsync();
+                if (localExpenses.Any() && _isInternetAvailable)
+                    await MigrateLocalDataToApi(localExpenses);
                 LoadOnlineData();
-            }
-            else
-            {
-                await DisplayAlert("Offline Mode", "Fetching data from local database.", "OK");
+            } else {
+                await DisplayAlert("Connectivity", "You are currently offline", "Ok");
                 LoadOfflineData();
             }
         }
 
 
+        private async Task MigrateLocalDataToApi(List<Expense> localExpenses)
+        {
+            foreach (var expense in localExpenses)
+            {
+                var apiExpense = new Expense
+                {
+                    ExpenseId = 0, // Ensure a new record is created on the server
+                    Description = expense.Description,
+                    Amount = expense.Amount,
+                    ExpenseDate = expense.ExpenseDate,
+                    //ExpenseCategoryId = expense.ExpenseCategoryId
+                    ExpenseCategoryId = 1
+                };
 
+                try
+                {
+                    bool success = await _apiService.CreateExpenseAsync(apiExpense);
+
+                    if (success) await _databaseService.DeleteExpenseAsync(expense.ExpenseId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expense.Description}.", "OK");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to migrate expense: {expense.Description}. Check logs for details.", "OK");
+                }
+            }
+            await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
+        }
+        
         private void BindExpenseToForm()
         {
             descriptionEntry.Text = _currentExpense.Description;
@@ -56,13 +76,11 @@ namespace MauiCrud.Pages
             expenseDatePicker.Date = _currentExpense.ExpenseDate != default ? _currentExpense.ExpenseDate : DateTime.Now;
             categoryPicker.SelectedItem = _currentExpense.ExpenseCategory;
         }
-
         private async void LoadOnlineData()
         {
             categoryPicker.ItemsSource = await _apiService.GetExpenseCategoriesAsync();
             expenseListView.ItemsSource = await _apiService.GetExpensesAsync();
         }
-
         private async void LoadOfflineData()
         {
             categoryPicker.ItemsSource = await _databaseService.GetExpenseCategoriesAsync();
@@ -71,40 +89,29 @@ namespace MauiCrud.Pages
 
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
-            // Populate _currentExpense from form fields
             _currentExpense.Description = descriptionEntry.Text;
             _currentExpense.Amount = decimal.TryParse(amountEntry.Text, out var amount) ? amount : 0;
             _currentExpense.ExpenseDate = expenseDatePicker.Date;
             _currentExpense.ExpenseCategoryId = (categoryPicker.SelectedItem as ExpenseCategory)?.ExpenseCategoryId ?? 0;
 
-            bool success;
-
             if (_isInternetAvailable)
             {
-                // Save using API
-                success = _currentExpense.ExpenseId == 0
-                    ? await _apiService.CreateExpenseAsync(_currentExpense)
-                    : await _apiService.UpdateExpenseAsync(_currentExpense);
+                await (_currentExpense.ExpenseId == 0
+                    ? _apiService.CreateExpenseAsync(_currentExpense)
+                    : _apiService.UpdateExpenseAsync(_currentExpense));
+                LoadOnlineData();
             }
             else
             {
-                // Save to local database
-                success = _currentExpense.ExpenseId == 0
-                    ? await _databaseService.SaveExpenseAsync(_currentExpense) > 0
-                    : await _databaseService.UpdateExpenseAsync(_currentExpense) > 0;
+                var result = _currentExpense.ExpenseId == 0
+                    ? await _databaseService.SaveExpenseAsync(_currentExpense)
+                    : await _databaseService.UpdateExpenseAsync(_currentExpense);
+                LoadOfflineData();
             }
 
-            // Show success or error message
-            await DisplayAlert(success ? "Success" : "Error", success ? "Expense saved." : "Failed to save expense.", "OK");
-
-            if (success)
-            {
-                ClearForm();  // Clear form on success
-                CheckConnectivity();  // Reload data after save
-            }
+            await DisplayAlert("Success" , "Expense saved." , "OK");
+            ClearForm();
         }
-
-
 
         private async void ExpenseListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
@@ -118,18 +125,23 @@ namespace MauiCrud.Pages
             }
             else if (action == "Delete" && await DisplayAlert("Confirm", "Delete this expense?", "Yes", "No"))
             {
-                if (await _apiService.DeleteExpenseAsync(selectedExpense.ExpenseId))
+
+                if (_isInternetAvailable)
                 {
-                    await DisplayAlert("Success", "Expense deleted.", "OK");
-                    CheckConnectivity(); // Reload data after delete
+                    var success = await _apiService.DeleteExpenseAsync(selectedExpense.ExpenseId);
+                    LoadOnlineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Expense deleted." : "Failed to delete expense.", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Error", "Failed to delete expense.", "OK");
+                    var success = await _databaseService.DeleteExpenseAsync(selectedExpense.ExpenseId) > 0;
+                    LoadOfflineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Expense deleted offline." : "Failed to delete expense offline.", "OK");
                 }
             }
             ((ListView)sender).SelectedItem = null;
         }
+
 
         private void ClearForm()
         {

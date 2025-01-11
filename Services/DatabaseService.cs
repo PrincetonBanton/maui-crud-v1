@@ -28,9 +28,9 @@ namespace MauiCrud.Services
         public Task<List<Revenue>> GetRevenuesAsync() => _database.Table<Revenue>().ToListAsync();
 
         // Save Methods
-        public Task<int> SaveExpenseAsync(Expense expense) => _database.InsertOrReplaceAsync(expense);
-        public Task<int> SaveExpenseCategoryAsync(ExpenseCategory category) => _database.InsertOrReplaceAsync(category);
-        public Task<int> SaveRevenueAsync(Revenue revenue) => _database.InsertOrReplaceAsync(revenue);
+        public Task<int> SaveExpenseAsync(Expense expense) => _database.InsertAsync(expense);
+        public Task<int> SaveExpenseCategoryAsync(ExpenseCategory category) => _database.InsertAsync(category);
+        public Task<int> SaveRevenueAsync(Revenue revenue) => _database.InsertAsync(revenue);
 
         // Update Methods
         public Task<int> UpdateExpenseAsync(Expense expense) => _database.UpdateAsync(expense);

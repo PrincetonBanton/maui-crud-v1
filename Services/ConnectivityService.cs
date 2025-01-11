@@ -16,13 +16,6 @@ namespace MauiCrud.Services
         public async Task CheckAndUpdateConnectivityAsync()
         {
             IsInternetAvailable = Connectivity.NetworkAccess == NetworkAccess.Internet;
-
-            // Display the status alert
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                string status = IsInternetAvailable ? "connected to the Internet." : "offline.";
-                await App.Current.MainPage.DisplayAlert("Connectivity Status", $"Internet Available: {IsInternetAvailable}\nYou are currently {status}", "OK");
-            });
         }
     }
 }
