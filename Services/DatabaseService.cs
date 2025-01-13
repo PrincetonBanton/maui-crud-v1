@@ -15,11 +15,11 @@ namespace MauiCrud.Services
             var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MauiSqlite.db");
             _database = new SQLiteAsyncConnection(dbPath);
 
-            // Create tables
+            // Drop and create tables
+            //_database.ExecuteAsync("DROP TABLE IF EXISTS Revenue").Wait(); // Drop existing table
             _database.CreateTableAsync<Expense>().Wait();
             _database.CreateTableAsync<ExpenseCategory>().Wait();
-            _database.CreateTableAsync<Revenue>().Wait();
-
+            _database.CreateTableAsync<Revenue>().Wait(); // Create new table with updated schema
         }
 
         // Get Methods
@@ -42,5 +42,6 @@ namespace MauiCrud.Services
         public Task<int> DeleteExpenseCategoryAsync(int id) => _database.DeleteAsync<ExpenseCategory>(id);
         public Task<int> DeleteRevenueAsync(int id) => _database.DeleteAsync<Revenue>(id);
 
+        public Task<int> DeleteAllRevenuesAsync() => _database.ExecuteAsync("DELETE FROM Revenue");
     }
 }

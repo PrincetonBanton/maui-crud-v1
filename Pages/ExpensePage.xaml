@@ -12,7 +12,13 @@
         <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
         <DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />
 
-        <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink"  />
+        <Grid RowDefinitions="Auto" ColumnDefinitions="4*,1*">
+            <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink" 
+                Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" />
+            <Button Text="Modify" Clicked="Category_Clicked" BackgroundColor="LightPink" 
+                Grid.Row="0" Grid.Column="1" HorizontalOptions="FillAndExpand" />
+        </Grid>
+        
         <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="red"  />
         <!-- ListView for Expenses -->
         <ListView x:Name="expenseListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="ExpenseListView_ItemTapped">
@@ -20,6 +26,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="5">
+                            <Label Text="{Binding ExpenseId}" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Amount, StringFormat='{0:N2}'}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />

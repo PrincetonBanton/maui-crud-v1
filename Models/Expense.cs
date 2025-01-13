@@ -1,4 +1,4 @@
-﻿using MauiCrud.Models;
+﻿ using MauiCrud.Models;
 using SQLite;
 public class Expense
 {

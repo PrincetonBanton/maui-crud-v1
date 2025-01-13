@@ -4,6 +4,8 @@
              BackgroundColor="white" >
 
     <StackLayout Margin="10" Padding="10">
+        <!-- Internet Status -->
+        <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
 
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
         <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric"/>
@@ -16,6 +18,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="5">
+                            <Label Text="{Binding RevenueId}" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Amount}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding Client}" FontSize="14" TextColor="Black" />

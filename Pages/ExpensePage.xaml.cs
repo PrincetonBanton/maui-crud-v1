@@ -1,5 +1,6 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
+using MauiCrud.Pages;
 
 namespace MauiCrud.Pages
 {
@@ -39,35 +40,34 @@ namespace MauiCrud.Pages
             }
         }
 
-
-        private async Task MigrateLocalDataToApi(List<Expense> localExpenses)
-        {
-            foreach (var expense in localExpenses)
+            private async Task MigrateLocalDataToApi(List<Expense> localExpenses)
             {
-                var apiExpense = new Expense
+                foreach (var expense in localExpenses)
                 {
-                    ExpenseId = 0, // Ensure a new record is created on the server
-                    Description = expense.Description,
-                    Amount = expense.Amount,
-                    ExpenseDate = expense.ExpenseDate,
-                    //ExpenseCategoryId = expense.ExpenseCategoryId
-                    ExpenseCategoryId = 1
-                };
+                    var apiExpense = new Expense
+                    {
+                        ExpenseId = 0, // Ensure a new record is created on the server
+                        Description = expense.Description,
+                        Amount = expense.Amount,
+                        ExpenseDate = expense.ExpenseDate,
+                        //ExpenseCategoryId = expense.ExpenseCategoryId
+                        ExpenseCategoryId = 1
+                    };
 
-                try
-                {
-                    bool success = await _apiService.CreateExpenseAsync(apiExpense);
+                    try
+                    {
+                        bool success = await _apiService.CreateExpenseAsync(apiExpense);
 
-                    if (success) await _databaseService.DeleteExpenseAsync(expense.ExpenseId);
-                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expense.Description}.", "OK");
+                        if (success) await _databaseService.DeleteExpenseAsync(expense.ExpenseId);
+                        else await DisplayAlert("Migration Error", $"Failed to migrate: {expense.Description}.", "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"Failed to migrate expense: {expense.Description}. Check logs for details.", "OK");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    await DisplayAlert("Error", $"Failed to migrate expense: {expense.Description}. Check logs for details.", "OK");
-                }
+                await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
             }
-            await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
-        }
         
         private void BindExpenseToForm()
         {
@@ -125,7 +125,6 @@ namespace MauiCrud.Pages
             }
             else if (action == "Delete" && await DisplayAlert("Confirm", "Delete this expense?", "Yes", "No"))
             {
-
                 if (_isInternetAvailable)
                 {
                     var success = await _apiService.DeleteExpenseAsync(selectedExpense.ExpenseId);
@@ -142,7 +141,6 @@ namespace MauiCrud.Pages
             ((ListView)sender).SelectedItem = null;
         }
 
-
         private void ClearForm()
         {
             _currentExpense = new Expense();
@@ -150,6 +148,11 @@ namespace MauiCrud.Pages
             amountEntry.Text = string.Empty;
             expenseDatePicker.Date = DateTime.Now;
             categoryPicker.SelectedItem = null;
+        }
+
+        private async void Category_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new ExpenseCategoryPage());
         }
     }
 }

@@ -1,19 +1,73 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
+using MauiCrud.Pages;
 
 namespace MauiCrud.Pages
 {
     public partial class RevenuePage : ContentPage
     {
-        private readonly ApiService _apiService = new();
         private Revenue _currentRevenue = new();
-
+        private bool _isInternetAvailable;
+        private readonly ApiService _apiService = new();
+        private readonly DatabaseService _databaseService = new();
+      
         public RevenuePage(Revenue revenue = null)
         {
             InitializeComponent();
+            CheckConnectivity();
             _currentRevenue = revenue ?? new Revenue();
             BindRevenueToForm();
-            LoadRevenues();
+            //LoadRevenues();
+        }
+        private async void CheckConnectivity()
+        {
+            await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
+            _isInternetAvailable = ConnectivityService.Instance.IsInternetAvailable;
+
+            internetStatusLabel.Text = _isInternetAvailable ? "Online" : "Offline";
+            internetStatusLabel.TextColor = _isInternetAvailable ? Colors.Green : Colors.Red;
+
+            if (_isInternetAvailable)
+            {
+                var localRevenues = await _databaseService.GetRevenuesAsync();
+                if (localRevenues.Any() && _isInternetAvailable)
+                    await DisplayAlert("Connectivity", "migrate local", "Ok");
+                    await MigrateLocalDataToApi(localRevenues);
+                LoadOnlineData();
+            }
+            else
+            {
+                await DisplayAlert("Connectivity", "You are currently offline", "Ok");
+                LoadOfflineData();
+            }
+        }
+
+        private async Task MigrateLocalDataToApi(List<Revenue> localRevenues)
+        {
+            foreach (var revenue in localRevenues)
+            {
+                var apiRevenue = new Revenue
+                {
+                    RevenueId = 0, // Ensure a new record is created on the server
+                    Description = revenue.Description,
+                    Amount = revenue.Amount,
+                    Client = revenue.Client,
+                    ArrivedDate = revenue.ArrivedDate
+                };
+
+                try
+                {
+                    bool success = await _apiService.CreateRevenueAsync(apiRevenue);
+
+                    if (success) await _databaseService.DeleteRevenueAsync(revenue.RevenueId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {revenue.Description}.", "OK");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to migrate expense: {revenue.Description}. Check logs for details.", "OK");
+                }
+            }
+            await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
         }
 
         private void BindRevenueToForm()
@@ -24,8 +78,10 @@ namespace MauiCrud.Pages
             arrivedDatePicker.Date = _currentRevenue.ArrivedDate != default ? _currentRevenue.ArrivedDate : DateTime.Now;
         }
 
-        private async void LoadRevenues()
+        private async void LoadOnlineData()
             => revenueListView.ItemsSource = await _apiService.GetRevenuesAsync();
+        private async void LoadOfflineData()
+            => revenueListView.ItemsSource = await _databaseService.GetRevenuesAsync();
 
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
@@ -34,17 +90,22 @@ namespace MauiCrud.Pages
             _currentRevenue.Client = clientEntry.Text;
             _currentRevenue.ArrivedDate = arrivedDatePicker.Date;
 
-            bool success = _currentRevenue.RevenueId == 0
-                ? await _apiService.CreateRevenueAsync(_currentRevenue)
-                : await _apiService.UpdateRevenueAsync(_currentRevenue);
-
-            await DisplayAlert(success ? "Success" : "Error", success ? "Revenue saved." : "Failed to save revenue.", "OK");
-
-            if (success)
+            if (_isInternetAvailable)
             {
-                ClearForm();
-                LoadRevenues();
+                await (_currentRevenue.RevenueId == 0
+                    ? _apiService.CreateRevenueAsync(_currentRevenue)
+                    : _apiService.UpdateRevenueAsync(_currentRevenue));
+                LoadOnlineData();
             }
+            else
+            {
+                var result = _currentRevenue.RevenueId == 0
+                    ? await _databaseService.SaveRevenueAsync(_currentRevenue)
+                    : await _databaseService.UpdateRevenueAsync(_currentRevenue);
+                LoadOfflineData();
+            }
+            await DisplayAlert("Success", "Expense saved.", "OK");
+            ClearForm();
         }
 
         private async void RevenueListView_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -59,14 +120,18 @@ namespace MauiCrud.Pages
             }
             else if (action == "Delete" && await DisplayAlert("Confirm", "Delete this revenue?", "Yes", "No"))
             {
-                if (await _apiService.DeleteRevenueAsync(selectedRevenue.RevenueId))
+                if (_isInternetAvailable)
                 {
-                    await DisplayAlert("Success", "Revenue deleted.", "OK");
-                    LoadRevenues();
+                    var success = await _apiService.DeleteRevenueAsync(selectedRevenue.RevenueId);
+                    LoadOnlineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Revenue deleted." : "Failed to delete revenue.", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Error", "Failed to delete revenue.", "OK");
+                    //var success = await _databaseService.DeleteAllRevenuesAsync(););
+                    var success = await _databaseService.DeleteRevenueAsync(selectedRevenue.RevenueId) == 0;
+                    LoadOfflineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Revenue deleted offline." : "Failed to delete revenue offline.", "OK");
                 }
             }
             ((ListView)sender).SelectedItem = null;
