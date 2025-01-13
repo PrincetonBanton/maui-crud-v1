@@ -64,7 +64,7 @@ namespace MauiCrud.Services
         }
 
         // Expense Category Methods
-        public Task<List<ExpenseCategory>> GetExpenseCategoriesAsync()
+        public Task<List<ExpenseCategory>> GetExpenseCategoryAsync()
             => GetAsync<List<ExpenseCategory>>("expensecategories") ?? Task.FromResult(new List<ExpenseCategory>());
         public Task<bool> CreateExpenseCategoryAsync(ExpenseCategory category)
             => PostAsync("expensecategory", category);

@@ -1,87 +1,143 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
+using MauiCrud.Pages;
 
-namespace MauiCrud.Pages;
-
-public partial class ExpenseCategoryPage : ContentPage
+namespace MauiCrud.Pages
 {
-    private readonly ApiService _apiService = new();
-    private ExpenseCategory _currentCategory = new();
-
-    public ExpenseCategoryPage()
+    public partial class ExpenseCategoryPage : ContentPage
     {
-        InitializeComponent();
-        LoadExpenseCategories();
-    }
+        private ExpenseCategory _currentExpenseCategory = new();
+        private bool _isInternetAvailable;
+        private readonly ApiService _apiService = new();
+        private readonly DatabaseService _databaseService = new();
 
-    private async void LoadExpenseCategories()
-    {
-        var categories = await _apiService.GetExpenseCategoriesAsync();
-        expenseCategoriesListView.ItemsSource = categories ?? new List<ExpenseCategory>();
-    }
-
-    private async void OnSaveButtonClicked(object sender, EventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(nameEntry.Text) || string.IsNullOrWhiteSpace(descriptionEntry.Text))
+        public ExpenseCategoryPage(ExpenseCategory expenseCategory = null)
         {
-            await DisplayAlert("Validation Error", "Name and description cannot be empty.", "OK");
-            return;
+            InitializeComponent();
+            CheckConnectivity();
+            _currentExpenseCategory = expenseCategory ?? new ExpenseCategory();
+            BindExpenseToForm();
         }
 
-        _currentCategory.Name = nameEntry.Text;
-        _currentCategory.Description = descriptionEntry.Text;
-
-        bool success = _currentCategory.ExpenseCategoryId == 0
-            ? await _apiService.CreateExpenseCategoryAsync(_currentCategory)
-            : await _apiService.UpdateExpenseCategoryAsync(_currentCategory);
-
-        await DisplayAlert(success ? "Success" : "Error", success ? "Category saved successfully." : "Failed to save category.", "OK");
-
-        if (success)
+        private async void CheckConnectivity()
         {
-            ClearForm();
-            LoadExpenseCategories();
-        }
-    }
+            await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
+            _isInternetAvailable = ConnectivityService.Instance.IsInternetAvailable;
+            internetStatusLabel.Text = _isInternetAvailable ? "Online" : "Offline";
+            internetStatusLabel.TextColor = _isInternetAvailable ? Colors.Green : Colors.Red;
 
-    private async void ExpenseCategoriesListView_ItemTapped(object sender, ItemTappedEventArgs e)
-    {
-        if (e.Item is not ExpenseCategory selectedCategory) return;
-
-        string action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
-
-        if (action == "Edit")
-        {
-            _currentCategory = selectedCategory;
-            nameEntry.Text = selectedCategory.Name;
-            descriptionEntry.Text = selectedCategory.Description;
-        }
-        else if (action == "Delete" && await DisplayAlert("Confirm Delete", $"Delete '{selectedCategory.Name}'?", "Yes", "No"))
-        {
-            if (await _apiService.DeleteExpenseCategoryAsync(selectedCategory.ExpenseCategoryId))
+            if (_isInternetAvailable)
             {
-                await DisplayAlert("Success", "Category deleted.", "OK");
-                LoadExpenseCategories();
+                var localExpenseCategory = await _databaseService.GetExpenseCategoryAsync();
+                if (localExpenseCategory.Any()) await MigrateLocalDataToApi(localExpenseCategory);
+                LoadOnlineData();
             }
             else
             {
-                await DisplayAlert("Error", "Failed to delete category.", "OK");
+                await DisplayAlert("Connectivity", "You are currently offline", "Ok");
+                LoadOfflineData();
             }
         }
 
-        ((ListView)sender).SelectedItem = null;
+        private async Task MigrateLocalDataToApi(List<ExpenseCategory> localExpenseCategory)
+        {
+            foreach (var expenseCategory in localExpenseCategory)
+            {
+                var apiExpenseCategory = new ExpenseCategory
+                {
+                    ExpenseCategoryId = 0, // Ensure a new record is created on the server
+                    Name = expenseCategory.Name,
+                    Description = expenseCategory.Description,
+                };
+
+                try
+                {
+                    bool success = await _apiService.CreateExpenseCategoryAsync(apiExpenseCategory);
+                    if (success) await _databaseService.DeleteExpenseCategoryAsync(expenseCategory.ExpenseCategoryId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expenseCategory.Description}.", "OK");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to migrate expense: {expenseCategory.Description}. Check logs for details.", "OK");
+                }
+            }
+            await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
+        }
+
+        private void BindExpenseToForm()
+        {
+            nameEntry.Text = _currentExpenseCategory.Name;
+            descriptionEntry.Text = _currentExpenseCategory.Description;    
+        }
+        private async void LoadOnlineData()
+        {
+            expenseCategoryListView.ItemsSource = await _apiService.GetExpenseCategoryAsync();
+        }
+        private async void LoadOfflineData()
+        {
+            expenseCategoryListView.ItemsSource = await _databaseService.GetExpenseCategoryAsync();
+        }
+
+        private async void OnSaveButtonClicked(object sender, EventArgs e)
+        {
+            _currentExpenseCategory.Name = nameEntry.Text;
+            _currentExpenseCategory.Description = descriptionEntry.Text;
+
+            if (_isInternetAvailable)
+            {
+                var result = _currentExpenseCategory.ExpenseCategoryId == 0
+                    ? _apiService.CreateExpenseCategoryAsync(_currentExpenseCategory)
+                    : _apiService.UpdateExpenseCategoryAsync(_currentExpenseCategory);
+                LoadOnlineData();
+            }
+            else
+            {
+                var result = _currentExpenseCategory.ExpenseCategoryId == 0
+                    ? await _databaseService.SaveExpenseCategoryAsync(_currentExpenseCategory)
+                    : await _databaseService.UpdateExpenseCategoryAsync(_currentExpenseCategory);
+                LoadOfflineData();
+            }
+
+            await DisplayAlert("Success", "Expense saved.", "OK");
+            ClearForm();
+        }
+
+        private async void ExpenseCategoryListView_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (e.Item is not ExpenseCategory selectedExpenseCategory) return;
+
+            string action = await DisplayActionSheet("Action", "Cancel", null, "Edit", "Delete");
+            if (action == "Edit")
+            {
+                _currentExpenseCategory = selectedExpenseCategory;
+                BindExpenseToForm();
+            }
+            else if (action == "Delete" && await DisplayAlert("Confirm", "Delete this expense?", "Yes", "No"))
+            {
+                if (_isInternetAvailable)
+                {
+                    var success = await _apiService.DeleteExpenseCategoryAsync(selectedExpenseCategory.ExpenseCategoryId);
+                    LoadOnlineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Expense deleted." : "Failed to delete expense.", "OK");
+                }
+                else
+                {
+                    var success = await _databaseService.DeleteExpenseCategoryAsync(selectedExpenseCategory.ExpenseCategoryId) > 0;
+                    LoadOfflineData();
+                    await DisplayAlert(success ? "Success" : "Error", success ? "Expense deleted offline." : "Failed to delete expense offline.", "OK");
+                }
+            }
+            ((ListView)sender).SelectedItem = null;
+        }
+
+        private void ClearForm()
+        {
+            _currentExpenseCategory = new ExpenseCategory();
+            nameEntry.Text = string.Empty;
+            descriptionEntry.Text = string.Empty;
+        }
+
+        private async void OnAddExpenseButtonClicked(object sender, EventArgs e) => await Navigation.PushAsync(new ExpensePage());
+        private async void OnAddRevenueButtonClicked(object sender, EventArgs e) => await Navigation.PushAsync(new RevenuePage());
     }
-
-    private void ClearForm()
-    {
-        _currentCategory = new ExpenseCategory();
-        nameEntry.Text = string.Empty;
-        descriptionEntry.Text = string.Empty;
-    }
-
-    private async void OnAddExpenseButtonClicked(object sender, EventArgs e)
-        => await Navigation.PushAsync(new ExpensePage());
-
-    private async void OnAddRevenueButtonClicked(object sender, EventArgs e)
-        => await Navigation.PushAsync(new RevenuePage());
 }

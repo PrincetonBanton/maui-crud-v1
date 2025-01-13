@@ -8,63 +8,38 @@ namespace MauiCrud.Services
         private const string BaseUrl = "https://localhost:7236/api";
         private readonly HttpClient _httpClient = new();
 
-        private async Task<T?> GetAsync<T>(string endpoint)
+        private async Task<T?> RequestAsync<T>(Func<Task<T?>> request, string errorMessage)
         {
-            try
-            {
-                return await _httpClient.GetFromJsonAsync<T>($"{BaseUrl}/{endpoint}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching data: {ex.Message}");
-                return default;
-            }
+            try { return await request(); }
+            catch (Exception ex) { Console.WriteLine($"{errorMessage}: {ex.Message}"); return default; }
         }
 
-        private async Task<bool> PostAsync<T>(string endpoint, T data)
-        {
-            try
+        private Task<T?> GetAsync<T>(string endpoint)
+            => RequestAsync(() => _httpClient.GetFromJsonAsync<T>($"{BaseUrl}/{endpoint}"), "Error fetching data");
+
+        private Task<bool> PostAsync<T>(string endpoint, T data)
+            => RequestAsync(async () =>
             {
                 var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/{endpoint}", data);
                 return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating data: {ex.Message}");
-                return false;
-            }
-        }
+            }, "Error creating data");
 
-        private async Task<bool> PutAsync<T>(string endpoint, T data)
-        {
-            try
+        private Task<bool> PutAsync<T>(string endpoint, T data)
+            => RequestAsync(async () =>
             {
                 var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{endpoint}", data);
                 return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating data: {ex.Message}");
-                return false;
-            }
-        }
+            }, "Error updating data");
 
-        private async Task<bool> DeleteAsync(string endpoint)
-        {
-            try
+        private Task<bool> DeleteAsync(string endpoint)
+            => RequestAsync(async () =>
             {
                 var response = await _httpClient.DeleteAsync($"{BaseUrl}/{endpoint}");
                 return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting data: {ex.Message}");
-                return false;
-            }
-        }
+            }, "Error deleting data");
 
         // Expense Category Methods
-        public Task<List<ExpenseCategory>> GetExpenseCategoriesAsync()
+        public Task<List<ExpenseCategory>> GetExpenseCategoryAsync()
             => GetAsync<List<ExpenseCategory>>("expensecategories") ?? Task.FromResult(new List<ExpenseCategory>());
         public Task<bool> CreateExpenseCategoryAsync(ExpenseCategory category)
             => PostAsync("expensecategory", category);
@@ -92,5 +67,18 @@ namespace MauiCrud.Services
             => PutAsync($"revenues/{revenue.RevenueId}", revenue);
         public Task<bool> DeleteRevenueAsync(int id)
             => DeleteAsync($"revenues/{id}");
+
+        //Date Filter
+        public async Task<decimal?> GetTotalExpenseAsync(string startDate, string endDate)
+        {
+            var endpoint = $"totalexpense?startDate={startDate}&endDate={endDate}";
+            return await GetAsync<decimal>(endpoint);
+        }
+
+        public async Task<decimal?> GetTotalIncomeAsync(string startDate, string endDate)
+        {
+            var endpoint = $"totalincome?startDate={startDate}&endDate={endDate}";
+            return await GetAsync<decimal>(endpoint);
+        }
     }
 }

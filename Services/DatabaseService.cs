@@ -16,15 +16,15 @@ namespace MauiCrud.Services
             _database = new SQLiteAsyncConnection(dbPath);
 
             // Drop and create tables
-            //_database.ExecuteAsync("DROP TABLE IF EXISTS Revenue").Wait(); // Drop existing table
+            //_database.ExecuteAsync("DROP TABLE IF EXISTS Expense").Wait(); // Drop existing table
             _database.CreateTableAsync<Expense>().Wait();
             _database.CreateTableAsync<ExpenseCategory>().Wait();
-            _database.CreateTableAsync<Revenue>().Wait(); // Create new table with updated schema
+            _database.CreateTableAsync<Revenue>().Wait(); 
         }
 
         // Get Methods
         public Task<List<Expense>> GetExpensesAsync() => _database.Table<Expense>().ToListAsync();
-        public Task<List<ExpenseCategory>> GetExpenseCategoriesAsync() => _database.Table<ExpenseCategory>().ToListAsync();
+        public Task<List<ExpenseCategory>> GetExpenseCategoryAsync() => _database.Table<ExpenseCategory>().ToListAsync();
         public Task<List<Revenue>> GetRevenuesAsync() => _database.Table<Revenue>().ToListAsync();
 
         // Save Methods
@@ -41,7 +41,5 @@ namespace MauiCrud.Services
         public Task<int> DeleteExpenseAsync(int id) => _database.DeleteAsync<Expense>(id);
         public Task<int> DeleteExpenseCategoryAsync(int id) => _database.DeleteAsync<ExpenseCategory>(id);
         public Task<int> DeleteRevenueAsync(int id) => _database.DeleteAsync<Revenue>(id);
-
-        public Task<int> DeleteAllRevenuesAsync() => _database.ExecuteAsync("DELETE FROM Revenue");
     }
 }

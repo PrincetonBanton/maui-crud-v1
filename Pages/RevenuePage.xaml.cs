@@ -30,9 +30,7 @@ namespace MauiCrud.Pages
             if (_isInternetAvailable)
             {
                 var localRevenues = await _databaseService.GetRevenuesAsync();
-                if (localRevenues.Any() && _isInternetAvailable)
-                    await DisplayAlert("Connectivity", "migrate local", "Ok");
-                    await MigrateLocalDataToApi(localRevenues);
+                if (localRevenues.Any()) await MigrateLocalDataToApi(localRevenues);
                 LoadOnlineData();
             }
             else
@@ -58,7 +56,6 @@ namespace MauiCrud.Pages
                 try
                 {
                     bool success = await _apiService.CreateRevenueAsync(apiRevenue);
-
                     if (success) await _databaseService.DeleteRevenueAsync(revenue.RevenueId);
                     else await DisplayAlert("Migration Error", $"Failed to migrate: {revenue.Description}.", "OK");
                 }
@@ -77,7 +74,6 @@ namespace MauiCrud.Pages
             clientEntry.Text = _currentRevenue.Client;
             arrivedDatePicker.Date = _currentRevenue.ArrivedDate != default ? _currentRevenue.ArrivedDate : DateTime.Now;
         }
-
         private async void LoadOnlineData()
             => revenueListView.ItemsSource = await _apiService.GetRevenuesAsync();
         private async void LoadOfflineData()
@@ -92,9 +88,9 @@ namespace MauiCrud.Pages
 
             if (_isInternetAvailable)
             {
-                await (_currentRevenue.RevenueId == 0
+                var result = _currentRevenue.RevenueId == 0
                     ? _apiService.CreateRevenueAsync(_currentRevenue)
-                    : _apiService.UpdateRevenueAsync(_currentRevenue));
+                    : _apiService.UpdateRevenueAsync(_currentRevenue);
                 LoadOnlineData();
             }
             else
@@ -129,7 +125,7 @@ namespace MauiCrud.Pages
                 else
                 {
                     //var success = await _databaseService.DeleteAllRevenuesAsync(););
-                    var success = await _databaseService.DeleteRevenueAsync(selectedRevenue.RevenueId) == 0;
+                    var success = await _databaseService.DeleteRevenueAsync(selectedRevenue.RevenueId) > 0;
                     LoadOfflineData();
                     await DisplayAlert(success ? "Success" : "Error", success ? "Revenue deleted offline." : "Failed to delete revenue offline.", "OK");
                 }
