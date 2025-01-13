@@ -1,7 +1,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiCrud.Pages.ExpenseCategoryPage"
-             Title="Expense Category" 
              BackgroundColor="White">
 
     <StackLayout Margin="10" Padding="20">
@@ -20,7 +19,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="10">
-                            <Label Text="{Binding ExpenseCategoryId}" FontSize="10" TextColor="Black"/>
+                            <!--<Label Text="{Binding ExpenseCategoryId}" FontSize="10" TextColor="Black"/>-->
                             <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Description}" FontSize="14" TextColor="Black" />
                             <!-- Borderline -->

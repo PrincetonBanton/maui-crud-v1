@@ -18,7 +18,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="5">
-                            <Label Text="{Binding RevenueId}" FontSize="10" TextColor="Black"/>
+                            <!--<Label Text="{Binding RevenueId}" FontSize="10" TextColor="Black"/>-->
                             <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Amount}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding Client}" FontSize="14" TextColor="Black" />
