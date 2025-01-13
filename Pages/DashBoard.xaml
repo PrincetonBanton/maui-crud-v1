@@ -28,24 +28,19 @@
             </Frame>
         </Grid>
         <!-- Date Pickers -->
-        <Grid Margin="10" Padding="10" ColumnDefinitions="*,*,Auto" BackgroundColor="Orange" >
-            <!-- Start Date -->
+        <Grid Margin="10" ColumnDefinitions="*,*,*" >
             <VerticalStackLayout Grid.Column="0">
-                <Label Text="Start Date" />
+                <Label Text="Start Date" TextColor="Black"/>
                 <DatePicker x:Name="StartDatePicker" TextColor="Black" />
             </VerticalStackLayout>
-
-            <!-- End Date -->
-            <VerticalStackLayout Grid.Column="1" Margin="20,0,0,0">
-                <Label Text="End Date" />
+            <VerticalStackLayout Grid.Column="1">
+                <Label Text="End Date" TextColor="Black" />
                 <DatePicker x:Name="EndDatePicker" TextColor="Black" />
             </VerticalStackLayout>
-
-            <!-- Fetch Data Button -->
-            <Button Grid.Column="2" Text="Fetch Data" Margin="10,20,0,0" Clicked="OnFetchDataClicked" />
+            <Button Grid.Column="2" Text="Fetch Data" Margin="10" Clicked="OnFetchDataClicked" VerticalOptions="Center"/>
         </Grid>
 
-        <Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0"/>
+        <Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0" />
         <Image Source="graph_trial.png" Aspect="AspectFit" WidthRequest="300"/>
     </VerticalStackLayout>
 </ContentPage>
