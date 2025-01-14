@@ -2,8 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiCrud.Pages.ExpenseCategoryPage"
              BackgroundColor="White">
-
-    <StackLayout Margin="10" Padding="20">
+    <!--<NavigationPage.TitleView>
+        <Label Text="Expense Category" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
+    </NavigationPage.TitleView>-->
+    
+    <StackLayout Margin="10" Padding="10">
+        <Label Text="Expense Category" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
         <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
 
         <Entry x:Name="nameEntry" Placeholder="Category Name" TextColor="black" />
@@ -29,9 +33,9 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <FlexLayout Margin="0,20,0,0">
-            <Button Text="Expense Page" Clicked="OnAddExpenseButtonClicked" FlexLayout.Grow="1" Margin="0,0,2,0" />
-            <Button Text="Revenue Page" Clicked="OnAddRevenueButtonClicked" FlexLayout.Grow="1" Margin="2,0,0,0"/>
+        <FlexLayout Margin="0,10,0,0">
+            <Button Text="Expense Page" Clicked="OnAddExpenseButtonClicked" FlexLayout.Grow="1" CornerRadius="0" />
+            <Button Text="Revenue Page" Clicked="OnAddRevenueButtonClicked" FlexLayout.Grow="1" CornerRadius="0"/>
         </FlexLayout>
     </StackLayout>
 </ContentPage>

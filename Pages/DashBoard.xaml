@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiCrud.Pages.DashBoard"
              BackgroundColor="White"
-             x:Class="MauiCrud.Pages.DashBoard">
+             NavigationPage.HasNavigationBar="True">
+    <!--<NavigationPage.TitleView>
+        <Label Text="Dashboard" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
+    </NavigationPage.TitleView>-->
+    
     <VerticalStackLayout>
-        <Grid Margin="10" ColumnDefinitions="*,*" HeightRequest="200">
-            <!-- Expense Frame (Left) -->
-            <Frame BackgroundColor="#F06A67" Padding="10" CornerRadius="3" Grid.Column="0" VerticalOptions="FillAndExpand">
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnExpenseFrameTapped"/>
-                </Frame.GestureRecognizers>
-                <VerticalStackLayout VerticalOptions="Center">
-                    <Label x:Name="ExpenseLabel"  Text="0.00"  VerticalOptions="Center" FontSize="60" TextColor="White"  />
-                    <Label Text="Total Expense"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Revenue Frame (Right) -->
-            <Frame BackgroundColor="#3C4EF0"  Padding="10" CornerRadius="3" Grid.Column="1" VerticalOptions="FillAndExpand">
+        <Label Text="Dashboard" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
+        <Grid Margin="10" ColumnDefinitions="*,*" ColumnSpacing="5" HeightRequest="200">
+            <Frame BackgroundColor="#3C4EF0"  Padding="10" CornerRadius="20" Grid.Column="0" VerticalOptions="FillAndExpand" HasShadow="True">
                 <Frame.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnRevenueFrameTapped" />
                 </Frame.GestureRecognizers>
                 <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="Revenue"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
                     <Label x:Name="RevenueLabel" Text="0.00" VerticalOptions="Center" FontSize="60" TextColor="White"  />
-                    <Label Text="Total Revenue"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
+                </VerticalStackLayout>
+            </Frame>
+            <Frame BackgroundColor="#F06A67" Padding="10" CornerRadius="20" Grid.Column="1" VerticalOptions="FillAndExpand">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnExpenseFrameTapped"/>
+                </Frame.GestureRecognizers>
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="Expense"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
+                    <Label x:Name="ExpenseLabel"  Text="0.00"  VerticalOptions="Center" FontSize="60" TextColor="White"  />
                 </VerticalStackLayout>
             </Frame>
         </Grid>
         <!-- Date Pickers -->
         <Grid Margin="10" ColumnDefinitions="*,*,*" >
-            <VerticalStackLayout Grid.Column="0">
-                <Label Text="Start Date" TextColor="Black"/>
+            <HorizontalStackLayout Grid.Column="0" VerticalOptions="Center">
+                <Label Text="From:" TextColor="Black"/>
                 <DatePicker x:Name="StartDatePicker" TextColor="Black" />
-            </VerticalStackLayout>
-            <VerticalStackLayout Grid.Column="1">
-                <Label Text="End Date" TextColor="Black" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center">
+                <Label Text="To:" TextColor="Black"/>
                 <DatePicker x:Name="EndDatePicker" TextColor="Black" />
-            </VerticalStackLayout>
-            <Button Grid.Column="2" Text="Fetch Data" Margin="10" Clicked="OnFetchDataClicked" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <ImageButton Grid.Column="2" Source="search.png" HeightRequest="50" 
+                 Clicked="OnFetchDataClicked" VerticalOptions="Center" HorizontalOptions="Start" Margin="0" />
+            <!--<Button Grid.Column="2" Text="Fetch Data" Margin="10" Clicked="OnFetchDataClicked" VerticalOptions="Center"/>-->
         </Grid>
 
         <Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0" />

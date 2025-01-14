@@ -1,10 +1,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiCrud.Pages.RevenuePage"
-             BackgroundColor="white" >
-
+             BackgroundColor="White"
+             NavigationPage.HasNavigationBar="True">
+    <!--<NavigationPage.TitleView>
+        <Label Text="Revenue" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
+    </NavigationPage.TitleView>-->
+    
     <StackLayout Margin="10" Padding="10">
-        <!-- Internet Status -->
+        <Label Text="Revenue" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
         <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
 
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
