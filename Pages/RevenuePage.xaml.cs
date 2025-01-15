@@ -64,7 +64,7 @@ namespace MauiCrud.Pages
                     await DisplayAlert("Error", $"Failed to migrate expense: {revenue.Description}. Check logs for details.", "OK");
                 }
             }
-            await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
+            await DisplayAlert("Migration Complete", "All local revenues have been migrated to the API.", "OK");
         }
 
         private void BindRevenueToForm()
@@ -100,7 +100,7 @@ namespace MauiCrud.Pages
                     : await _databaseService.UpdateRevenueAsync(_currentRevenue);
                 LoadOfflineData();
             }
-            await DisplayAlert("Success", "Expense saved.", "OK");
+            await DisplayAlert("Success", "Revenue saved.", "OK");
             ClearForm();
         }
 
