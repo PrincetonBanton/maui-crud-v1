@@ -28,8 +28,8 @@ namespace MauiCrud.Pages
 
             if (_isInternetAvailable)
             {
-                var localExpenseCategory = await _databaseService.GetExpenseCategoryAsync();
-                if (localExpenseCategory.Any()) await MigrateLocalDataToApi(localExpenseCategory);
+                //var localExpenseCategory = await _databaseService.GetExpenseCategoryAsync();
+                //if (localExpenseCategory.Any()) await MigrateLocalDataToApi(localExpenseCategory);
                 LoadOnlineData();
             }
             else

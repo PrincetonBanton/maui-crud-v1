@@ -18,8 +18,8 @@
         <Grid RowDefinitions="Auto" ColumnDefinitions="4*,1*">
             <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink"
                 Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" />
-            <Button Text="Modify" Clicked="Category_Clicked" CornerRadius="0" BorderColor="Gray" BorderWidth=".5"
-                Grid.Row="0" Grid.Column="1" HorizontalOptions="FillAndExpand" BackgroundColor="LightPink" />
+            <Button Text="Category" Clicked="Category_Clicked" CornerRadius="0" BorderColor="Gray" BorderWidth=".5"
+                Grid.Column="1" FontSize="10"  BackgroundColor="LightPink" />
         </Grid>
         
         <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="red"  />
@@ -29,7 +29,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="5">
-                            <!--<Label Text="{Binding ExpenseId}" FontSize="10" TextColor="Black"/>-->
+                            <Label Text="{Binding ExpenseCategoryId}" FontSize="10" TextColor="Black"/>
                             <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
                             <Label Text="{Binding Amount, StringFormat='{0:N2}'}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />

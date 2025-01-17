@@ -41,5 +41,20 @@ namespace MauiCrud.Services
         public Task<int> DeleteExpenseAsync(int id) => _database.DeleteAsync<Expense>(id);
         public Task<int> DeleteExpenseCategoryAsync(int id) => _database.DeleteAsync<ExpenseCategory>(id);
         public Task<int> DeleteRevenueAsync(int id) => _database.DeleteAsync<Revenue>(id);
+
+        public async Task ReplaceExpenseCategoryDataAsync(IEnumerable<ExpenseCategory> categories)
+        {
+            try
+            {
+                await _database.DropTableAsync<ExpenseCategory>();
+                await _database.CreateTableAsync<ExpenseCategory>();
+                await _database.InsertAllAsync(categories);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error replacing ExpenseCategory data: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

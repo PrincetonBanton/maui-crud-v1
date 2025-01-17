@@ -22,8 +22,8 @@ public partial class DashBoard : ContentPage
         // Check and update connectivity
         await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
 
-        // Fetch data based on default date values
-        await FetchTotalsAsync();
+        // Fetch data based on default date values without showing a success alert
+        await FetchTotalsAsync(showAlert: false);
     }
 
     private async void OnExpenseFrameTapped(object sender, EventArgs e)
@@ -33,9 +33,9 @@ public partial class DashBoard : ContentPage
         => await Navigation.PushAsync(new RevenuePage());
 
     private async void OnFetchDataClicked(object sender, EventArgs e)
-        => await FetchTotalsAsync();
+        => await FetchTotalsAsync(showAlert: true);
 
-    private async Task FetchTotalsAsync()
+    private async Task FetchTotalsAsync(bool showAlert)
     {
         try
         {
@@ -50,6 +50,11 @@ public partial class DashBoard : ContentPage
             // Update UI labels
             ExpenseLabel.Text = totalExpense?.ToString("F2") ?? "0.00";
             RevenueLabel.Text = totalIncome?.ToString("F2") ?? "0.00";
+
+            if (showAlert)
+            {
+                await DisplayAlert("Success", "Totals successfully fetched.", "OK");
+            }
         }
         catch (Exception ex)
         {

@@ -30,6 +30,11 @@ namespace MauiCrud.Pages
             {
                 var localExpenses = await _databaseService.GetExpensesAsync();
                 if (localExpenses.Any()) await MigrateLocalDataToApi(localExpenses);
+
+                // Replace local ExpenseCategory table with API data
+                var apiCategories = await _apiService.GetExpenseCategoryAsync();
+                await _databaseService.ReplaceExpenseCategoryDataAsync(apiCategories);
+
                 LoadOnlineData();
             } else {
                 await DisplayAlert("Connectivity", "You are currently offline", "Ok");
