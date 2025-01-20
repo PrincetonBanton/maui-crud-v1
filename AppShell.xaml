@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiCrud.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:MauiCrud.Pages"
+    Shell.FlyoutBehavior="Flyout">
+
+    <Shell.FlyoutHeader>
+        <!-- Add a custom header for the flyout (optional) -->
+        <Grid BackgroundColor="LightGray" Padding="10">
+            <Label Text="Go To" FontSize="20" TextColor="Black" VerticalOptions="Center" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem Title="Dashboard" Icon="dashboard_icon.png">
+        <Tab Title="Dashboard">
+            <ShellContent ContentTemplate="{DataTemplate pages:DashBoard}" Route="DashBoard" />
+        </Tab>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Expense" Icon="expense_icon.png">
+        <Tab Title="Expense">
+            <ShellContent ContentTemplate="{DataTemplate pages:ExpensePage}" Route="ExpensePage" />
+        </Tab>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Category" Icon="category_icon.png">
+        <Tab Title="Category">
+            <ShellContent ContentTemplate="{DataTemplate pages:ExpenseCategoryPage}" Route="ExpenseCategoryPage" />
+        </Tab>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Revenue" Icon="revenue_icon.png">
+        <Tab Title="Revenue">
+            <ShellContent ContentTemplate="{DataTemplate pages:RevenuePage}" Route="RevenuePage" />
+        </Tab>
+    </FlyoutItem>
+
+
+</Shell>

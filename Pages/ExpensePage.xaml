@@ -1,43 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiCrud.Pages.ExpensePage"
-             BackgroundColor="White"
-             NavigationPage.HasNavigationBar="True">
-    <!--<NavigationPage.TitleView>
-        <Label Text="Expense" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
-    </NavigationPage.TitleView>-->
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="MauiCrud.Pages.ExpensePage"
+            BackgroundColor="White">
 
     <StackLayout Margin="10" Padding="10" >
-        <Label Text="Expense" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
-        <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
+    <Label Text="Expense" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
+    <Label x:Name="internetStatusLabel" Text="Checking..." HorizontalOptions="Start" />
          
-        <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
-        <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
-        <DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />
+    <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
+    <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
+    <DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />
 
-        <Grid RowDefinitions="Auto" ColumnDefinitions="4*,1*">
-            <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink"
-                Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" />
-            <Button Text="Category" Clicked="Category_Clicked" CornerRadius="0" BorderColor="Gray" BorderWidth=".5"
-                Grid.Column="1" FontSize="10"  BackgroundColor="LightPink" />
-        </Grid>
+    <Grid RowDefinitions="Auto" ColumnDefinitions="4*,1*">
+        <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink"
+            Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" />
+        <Button Text="Category" Clicked="Category_Clicked" CornerRadius="0" BorderColor="Gray" BorderWidth=".5"
+            Grid.Column="1" FontSize="10"  BackgroundColor="LightPink" />
+    </Grid>
         
-        <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="red"  />
-        <!-- ListView for Expenses -->
-        <ListView x:Name="expenseListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="ExpenseListView_ItemTapped">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <StackLayout Padding="5">
-                            <Label Text="{Binding ExpenseCategoryId}" FontSize="10" TextColor="Black"/>
-                            <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
-                            <Label Text="{Binding Amount, StringFormat='{0:N2}'}" FontSize="14" TextColor="Black" />
-                            <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />
-                            <BoxView HeightRequest="1" BackgroundColor="White" Margin="0,5,0,0" />
-                        </StackLayout>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackLayout>
+    <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="red"  />
+    <!-- ListView for Expenses -->
+    <ListView x:Name="expenseListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="ExpenseListView_ItemTapped">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <StackLayout Padding="5">
+                        <Label Text="{Binding ExpenseCategoryId}" FontSize="10" TextColor="Black"/>
+                        <Label Text="{Binding Description}" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                        <Label Text="{Binding Amount, StringFormat='{0:N2}'}" FontSize="14" TextColor="Black" />
+                        <Label Text="{Binding ExpenseDate, StringFormat='{0:MM/dd/yyyy}'}" FontSize="12" TextColor="Black" />
+                        <BoxView HeightRequest="1" BackgroundColor="White" Margin="0,5,0,0" />
+                    </StackLayout>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+</StackLayout>
 </ContentPage>

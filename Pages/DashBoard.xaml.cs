@@ -18,17 +18,12 @@ public partial class DashBoard : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        // Check and update connectivity
         await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
-
-        // Fetch data based on default date values without showing a success alert
         await FetchTotalsAsync(showAlert: false);
     }
 
     private async void OnExpenseFrameTapped(object sender, EventArgs e)
         => await Navigation.PushAsync(new ExpensePage());
-
     private async void OnRevenueFrameTapped(object sender, EventArgs e)
         => await Navigation.PushAsync(new RevenuePage());
 
@@ -62,4 +57,5 @@ public partial class DashBoard : ContentPage
             await DisplayAlert("Error", $"Failed to fetch data: {ex.Message}", "OK");
         }
     }
+
 }
