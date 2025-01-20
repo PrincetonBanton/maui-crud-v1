@@ -66,14 +66,6 @@ namespace MauiCrud.Pages
             }
             await DisplayAlert("Migration Complete", "All local revenues have been migrated to the API.", "OK");
         }
-
-        private void BindRevenueToForm()
-        {
-            descriptionEntry.Text = _currentRevenue.Description;
-            amountEntry.Text = _currentRevenue.Amount > 0 ? _currentRevenue.Amount.ToString() : string.Empty;
-            clientEntry.Text = _currentRevenue.Client;
-            arrivedDatePicker.Date = _currentRevenue.ArrivedDate != default ? _currentRevenue.ArrivedDate : DateTime.Now;
-        }
         private async void LoadOnlineData()
             => revenueListView.ItemsSource = await _apiService.GetRevenuesAsync();
         private async void LoadOfflineData()
@@ -132,7 +124,13 @@ namespace MauiCrud.Pages
             }
             ((ListView)sender).SelectedItem = null;
         }
-
+        private void BindRevenueToForm()
+        {
+            descriptionEntry.Text = _currentRevenue.Description;
+            amountEntry.Text = _currentRevenue.Amount > 0 ? _currentRevenue.Amount.ToString() : string.Empty;
+            clientEntry.Text = _currentRevenue.Client;
+            arrivedDatePicker.Date = _currentRevenue.ArrivedDate != default ? _currentRevenue.ArrivedDate : DateTime.Now;
+        }
         private void ClearForm()
         {
             _currentRevenue = new Revenue();

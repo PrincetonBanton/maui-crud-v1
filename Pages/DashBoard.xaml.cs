@@ -22,11 +22,6 @@ public partial class DashBoard : ContentPage
         await FetchTotalsAsync(showAlert: false);
     }
 
-    private async void OnExpenseFrameTapped(object sender, EventArgs e)
-        => await Navigation.PushAsync(new ExpensePage());
-    private async void OnRevenueFrameTapped(object sender, EventArgs e)
-        => await Navigation.PushAsync(new RevenuePage());
-
     private async void OnFetchDataClicked(object sender, EventArgs e)
         => await FetchTotalsAsync(showAlert: true);
 
@@ -53,7 +48,6 @@ public partial class DashBoard : ContentPage
         }
         catch (Exception ex)
         {
-            // Display an error message if the operation fails
             await DisplayAlert("Error", $"Failed to fetch data: {ex.Message}", "OK");
         }
     }

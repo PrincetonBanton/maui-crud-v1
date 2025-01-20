@@ -13,7 +13,7 @@
     <Entry x:Name="clientEntry" Placeholder="Client" TextColor="black"/>
     <DatePicker x:Name="arrivedDatePicker" Date="{Binding CurrentDate}" TextColor="Black"/>
     <Button Text="Save" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="Blue"/>
-    <!-- Revenue ListView -->
+
     <ListView x:Name="revenueListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="RevenueListView_ItemTapped">
         <ListView.ItemTemplate>
             <DataTemplate>

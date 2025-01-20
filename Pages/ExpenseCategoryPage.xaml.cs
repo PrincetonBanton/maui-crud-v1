@@ -64,11 +64,6 @@ namespace MauiCrud.Pages
             await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
         }
 
-        private void BindExpenseToForm()
-        {
-            nameEntry.Text = _currentExpenseCategory.Name;
-            descriptionEntry.Text = _currentExpenseCategory.Description;    
-        }
         private async void LoadOnlineData()
         {
             expenseCategoryListView.ItemsSource = await _apiService.GetExpenseCategoryAsync();
@@ -129,15 +124,16 @@ namespace MauiCrud.Pages
             }
             ((ListView)sender).SelectedItem = null;
         }
-
+        private void BindExpenseToForm()
+        {
+            nameEntry.Text = _currentExpenseCategory.Name;
+            descriptionEntry.Text = _currentExpenseCategory.Description;
+        }
         private void ClearForm()
         {
             _currentExpenseCategory = new ExpenseCategory();
             nameEntry.Text = string.Empty;
             descriptionEntry.Text = string.Empty;
         }
-
-        private async void OnAddExpenseButtonClicked(object sender, EventArgs e) => await Navigation.PushAsync(new ExpensePage());
-        private async void OnAddRevenueButtonClicked(object sender, EventArgs e) => await Navigation.PushAsync(new RevenuePage());
     }
 }

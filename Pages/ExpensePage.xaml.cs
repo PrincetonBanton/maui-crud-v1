@@ -52,8 +52,8 @@ namespace MauiCrud.Pages
                     Description = expense.Description,
                     Amount = expense.Amount,
                     ExpenseDate = expense.ExpenseDate,
-                    //ExpenseCategoryId = expense.ExpenseCategoryId
-                    ExpenseCategoryId = 1
+                    ExpenseCategoryId = expense.ExpenseCategoryId
+                    //ExpenseCategoryId = 1
                 };
 
                 try
@@ -69,14 +69,7 @@ namespace MauiCrud.Pages
             }
             await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
         }
-        
-        private void BindExpenseToForm()
-        {
-            descriptionEntry.Text = _currentExpense.Description;
-            amountEntry.Text = _currentExpense.Amount > 0 ? _currentExpense.Amount.ToString() : string.Empty;
-            expenseDatePicker.Date = _currentExpense.ExpenseDate != default ? _currentExpense.ExpenseDate : DateTime.Now;
-            categoryPicker.SelectedItem = _currentExpense.ExpenseCategory;
-        }
+       
         private async void LoadOnlineData()
         {
             categoryPicker.ItemsSource = await _apiService.GetExpenseCategoryAsync();
@@ -140,7 +133,13 @@ namespace MauiCrud.Pages
             }
             ((ListView)sender).SelectedItem = null;
         }
-        
+        private void BindExpenseToForm()
+        {
+            descriptionEntry.Text = _currentExpense.Description;
+            amountEntry.Text = _currentExpense.Amount > 0 ? _currentExpense.Amount.ToString() : string.Empty;
+            expenseDatePicker.Date = _currentExpense.ExpenseDate != default ? _currentExpense.ExpenseDate : DateTime.Now;
+            categoryPicker.SelectedItem = _currentExpense.ExpenseCategory;
+        }
         private void ClearForm()
         {
             _currentExpense = new Expense();
@@ -149,6 +148,5 @@ namespace MauiCrud.Pages
             expenseDatePicker.Date = DateTime.Now;
             categoryPicker.SelectedItem = null;
         }
-        private async void Category_Clicked(object sender, EventArgs e) => await Navigation.PushAsync(new ExpenseCategoryPage());
     }
 }

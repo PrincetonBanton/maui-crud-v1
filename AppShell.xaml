@@ -6,12 +6,11 @@
     xmlns:pages="clr-namespace:MauiCrud.Pages"
     Shell.FlyoutBehavior="Flyout">
 
-    <Shell.FlyoutHeader>
-        <!-- Add a custom header for the flyout (optional) -->
+    <!--<Shell.FlyoutHeader>
         <Grid BackgroundColor="LightGray" Padding="10">
             <Label Text="Go To" FontSize="20" TextColor="Black" VerticalOptions="Center" />
         </Grid>
-    </Shell.FlyoutHeader>
+    </Shell.FlyoutHeader>-->
 
     <FlyoutItem Title="Dashboard" Icon="dashboard_icon.png">
         <Tab Title="Dashboard">

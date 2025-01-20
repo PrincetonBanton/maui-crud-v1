@@ -7,25 +7,19 @@
         <Label Text="Dashboard" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
         <Grid Margin="10" ColumnDefinitions="*,*" ColumnSpacing="5" HeightRequest="200">
             <Frame BackgroundColor="#3C4EF0"  Padding="10" CornerRadius="20" Grid.Column="0" VerticalOptions="FillAndExpand" HasShadow="True">
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRevenueFrameTapped" />
-                </Frame.GestureRecognizers>
                 <VerticalStackLayout VerticalOptions="Center">
                     <Label Text="Revenue"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
                     <Label x:Name="RevenueLabel" Text="0.00" VerticalOptions="Center" FontSize="60" TextColor="White"  />
                 </VerticalStackLayout>
             </Frame>
             <Frame BackgroundColor="#F06A67" Padding="10" CornerRadius="20" Grid.Column="1" VerticalOptions="FillAndExpand">
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnExpenseFrameTapped"/>
-                </Frame.GestureRecognizers>
                 <VerticalStackLayout VerticalOptions="Center">
                     <Label Text="Expense"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
                     <Label x:Name="ExpenseLabel"  Text="0.00"  VerticalOptions="Center" FontSize="60" TextColor="White"  />
                 </VerticalStackLayout>
             </Frame>
         </Grid>
-        <!-- Date Pickers -->
+
         <Grid Margin="10" ColumnDefinitions="0.3*,0.3*,0.15*,0.25*">
             <HorizontalStackLayout Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Start">
                 <Label Text="From:" TextColor="Black" HorizontalOptions="Start"/>
@@ -39,7 +33,7 @@
                      Clicked="OnFetchDataClicked" VerticalOptions="Center" HorizontalOptions="Center"/>
         </Grid>
 
-        <Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0" />
-        <Image Source="graph_trial.png" Aspect="AspectFit" WidthRequest="300"/>
+        <!--<Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0" />
+        <Image Source="graph_trial.png" Aspect="AspectFit" WidthRequest="300"/>-->
     </VerticalStackLayout>
 </ContentPage>
