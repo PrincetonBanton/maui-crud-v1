@@ -19,6 +19,7 @@ public partial class DashBoard : ContentPage
     {
         base.OnAppearing();
         await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
+        UpdateFontSize();
         await FetchTotalsAsync(showAlert: false);
     }
 
@@ -29,22 +30,17 @@ public partial class DashBoard : ContentPage
     {
         try
         {
-            // Retrieve the selected dates
             var startDate = StartDatePicker.Date.ToString("yyyy-MM-dd");
             var endDate = EndDatePicker.Date.ToString("yyyy-MM-dd");
-
-            // Fetch data from the API
             var totalExpense = await _apiService.GetTotalExpenseAsync(startDate, endDate);
             var totalIncome = await _apiService.GetTotalIncomeAsync(startDate, endDate);
 
-            // Update UI labels
+ 
             ExpenseLabel.Text = totalExpense?.ToString("F2") ?? "0.00";
             RevenueLabel.Text = totalIncome?.ToString("F2") ?? "0.00";
+            UpdateFontSize();
 
-            if (showAlert)
-            {
-                await DisplayAlert("Success", "Totals successfully fetched.", "OK");
-            }
+            if (showAlert) await DisplayAlert("Success", "Totals successfully fetched.", "OK");
         }
         catch (Exception ex)
         {
@@ -52,4 +48,34 @@ public partial class DashBoard : ContentPage
         }
     }
 
+    private void UpdateFontSize()
+    {
+        // Get the current text values and format them with commas and 2 decimal places
+        string expenseText = ExpenseLabel.Text ?? "0.00";
+        string revenueText = RevenueLabel.Text ?? "0.00";
+
+        // Format the values with commas and 2 decimal places
+        string formattedExpenseText = decimal.TryParse(expenseText, out decimal expenseValue)
+            ? expenseValue.ToString("N2")
+            : expenseText;
+
+        string formattedRevenueText = decimal.TryParse(revenueText, out decimal revenueValue)
+            ? revenueValue.ToString("N2")
+            : revenueText;
+
+        // Update the labels with formatted values
+        ExpenseLabel.Text = formattedExpenseText;
+        RevenueLabel.Text = formattedRevenueText;
+
+        int fontSize = CalculateFontSize(formattedExpenseText, formattedRevenueText);
+
+        ExpenseLabel.FontSize = fontSize;
+        RevenueLabel.FontSize = fontSize;
+    }
+    private int CalculateFontSize(string expenseText, string revenueText)
+    {
+        int maxLength = Math.Max(expenseText.Length, revenueText.Length);
+        int fontSize = 50 - Math.Max(0, (maxLength - 6) * 5);
+        return Math.Max(fontSize, 20);
+    }
 }

@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:converters="clr-namespace:MauiCrud.Converters"
                  x:Class="MauiCrud.Pages.DashBoard"
                  BackgroundColor="White">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DynamicFontSizeConverter x:Key="FontSizeConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <VerticalStackLayout>
         <Label Text="Dashboard" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
         <Grid Margin="10" ColumnDefinitions="*,*" ColumnSpacing="5" HeightRequest="200">
             <Frame BackgroundColor="#3C4EF0"  Padding="10" CornerRadius="20" Grid.Column="0" VerticalOptions="FillAndExpand" HasShadow="True">
                 <VerticalStackLayout VerticalOptions="Center">
                     <Label Text="Revenue"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
-                    <Label x:Name="RevenueLabel" Text="0.00" VerticalOptions="Center" FontSize="60" TextColor="White"  />
+                    <Label x:Name="RevenueLabel" Text="999,999,999.99" VerticalOptions="Center" TextColor="White" />
+                    <!--FontSize="{Binding Text, Source={x:Reference RevenueLabel}, Converter={StaticResource FontSizeConverter}}"/>-->
                 </VerticalStackLayout>
             </Frame>
             <Frame BackgroundColor="#F06A67" Padding="10" CornerRadius="20" Grid.Column="1" VerticalOptions="FillAndExpand">
                 <VerticalStackLayout VerticalOptions="Center">
                     <Label Text="Expense"  VerticalOptions="Center" FontAttributes="Bold" TextColor="White"  />
-                    <Label x:Name="ExpenseLabel"  Text="0.00"  VerticalOptions="Center" FontSize="60" TextColor="White"  />
+                    <Label x:Name="ExpenseLabel"  Text="99,999,999.99"  VerticalOptions="Center" TextColor="White"/>
+                    <!--FontSize="{Binding Text, Source={x:Reference ExpenseLabel}, Converter={StaticResource FontSizeConverter}}"/>-->
                 </VerticalStackLayout>
             </Frame>
         </Grid>
