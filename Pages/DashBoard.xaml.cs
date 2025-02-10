@@ -5,14 +5,39 @@ namespace MauiCrud.Pages;
 public partial class DashBoard : ContentPage
 {
     private readonly ApiService _apiService = new();
+    private bool _isSelectingStartDate = true;
 
     public DashBoard()
     {
         InitializeComponent();
+        StartDateLabel.Text = DateTime.Now.AddMonths(-1).ToString("MM/dd/yyyy"); // 1 month ago
+        EndDateLabel.Text = DateTime.Now.ToString("MM/dd/yyyy"); // Today
 
-        // Set default dates
-        StartDatePicker.Date = DateTime.Now.AddMonths(-1); // 1 month ago
-        EndDatePicker.Date = DateTime.Now; // Today
+    }
+
+    private void OnStartDateLabelTapped(object sender, EventArgs e)
+    {
+        _isSelectingStartDate = true;
+        HiddenDatePicker.IsVisible = true; 
+        HiddenDatePicker.Focus();
+    }
+
+    private void OnEndDateLabelTapped(object sender, EventArgs e)
+    {
+        _isSelectingStartDate = false;
+        HiddenDatePicker.IsVisible = true; 
+        HiddenDatePicker.Focus();
+    }
+
+
+    private void OnDateSelected(object sender, DateChangedEventArgs e)
+    {
+        if (_isSelectingStartDate)
+            StartDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
+        else
+            EndDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
+
+        HiddenDatePicker.IsVisible = false;
     }
 
     protected override async void OnAppearing()
@@ -30,14 +55,21 @@ public partial class DashBoard : ContentPage
     {
         try
         {
-            var startDate = StartDatePicker.Date.ToString("yyyy-MM-dd");
-            var endDate = EndDatePicker.Date.ToString("yyyy-MM-dd");
+            if (string.IsNullOrWhiteSpace(StartDateLabel.Text) || string.IsNullOrWhiteSpace(EndDateLabel.Text) ||
+                StartDateLabel.Text == "Select Start Date" || EndDateLabel.Text == "Select End Date")
+            {
+                await DisplayAlert("Error", "Please select a valid date range.", "OK");
+                return;
+            }
+
+            var startDate = DateTime.Parse(StartDateLabel.Text).ToString("yyyy-MM-dd");
+            var endDate = DateTime.Parse(EndDateLabel.Text).ToString("yyyy-MM-dd");
+
             var totalExpense = await _apiService.GetTotalExpenseAsync(startDate, endDate);
             var totalIncome = await _apiService.GetTotalIncomeAsync(startDate, endDate);
 
- 
-            ExpenseLabel.Text = totalExpense?.ToString("F2") ?? "0.00";
-            RevenueLabel.Text = totalIncome?.ToString("F2") ?? "0.00";
+            ExpenseLabel.Text = totalExpense?.ToString("N2") ?? "0.00";
+            RevenueLabel.Text = totalIncome?.ToString("N2") ?? "0.00";
             UpdateFontSize();
 
             if (showAlert) await DisplayAlert("Success", "Totals successfully fetched.", "OK");
@@ -50,32 +82,22 @@ public partial class DashBoard : ContentPage
 
     private void UpdateFontSize()
     {
-        // Get the current text values and format them with commas and 2 decimal places
-        string expenseText = ExpenseLabel.Text ?? "0.00";
-        string revenueText = RevenueLabel.Text ?? "0.00";
+        ExpenseLabel.Text = FormatCurrency(ExpenseLabel.Text);
+        RevenueLabel.Text = FormatCurrency(RevenueLabel.Text);
 
-        // Format the values with commas and 2 decimal places
-        string formattedExpenseText = decimal.TryParse(expenseText, out decimal expenseValue)
-            ? expenseValue.ToString("N2")
-            : expenseText;
-
-        string formattedRevenueText = decimal.TryParse(revenueText, out decimal revenueValue)
-            ? revenueValue.ToString("N2")
-            : revenueText;
-
-        // Update the labels with formatted values
-        ExpenseLabel.Text = formattedExpenseText;
-        RevenueLabel.Text = formattedRevenueText;
-
-        int fontSize = CalculateFontSize(formattedExpenseText, formattedRevenueText);
-
+        int fontSize = CalculateFontSize(ExpenseLabel.Text, RevenueLabel.Text);
         ExpenseLabel.FontSize = fontSize;
         RevenueLabel.FontSize = fontSize;
     }
+
+    private string FormatCurrency(string value)
+    {
+        return decimal.TryParse(value, out decimal number) ? number.ToString("N2") : "0.00";
+    }
+
     private int CalculateFontSize(string expenseText, string revenueText)
     {
         int maxLength = Math.Max(expenseText.Length, revenueText.Length);
-        int fontSize = 50 - Math.Max(0, (maxLength - 6) * 5);
-        return Math.Max(fontSize, 20);
+        return Math.Max(50 - Math.Max(0, (maxLength - 6) * 5), 20);
     }
 }

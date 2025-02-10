@@ -10,7 +10,13 @@
       
         <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black" />
         <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric" />
-        <DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />
+        <!--<DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />-->
+
+        <StackLayout>
+            <DatePicker x:Name="expenseDatePicker" DateSelected="OnDateSelected"/>
+            <Label x:Name="formattedDateLabel" Text="{Binding CurrentDate}" TextColor="Black" FontSize="14"/>
+        </StackLayout>
+
         <Picker x:Name="categoryPicker" ItemDisplayBinding="{Binding Name}" BackgroundColor="LightPink"
                 Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" />
         <Button Text="Save Expense" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="red"  />

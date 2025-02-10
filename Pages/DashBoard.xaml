@@ -9,6 +9,7 @@
             <converters:DynamicFontSizeConverter x:Key="FontSizeConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
+    
     <VerticalStackLayout>
         <Label Text="Dashboard" HorizontalOptions="CenterAndExpand" FontSize="20" FontAttributes="Bold" TextColor="Black" />
         <Grid Margin="10" ColumnDefinitions="*,*" ColumnSpacing="5" HeightRequest="200">
@@ -27,20 +28,23 @@
                 </VerticalStackLayout>
             </Frame>
         </Grid>
+        <Grid Margin="10" ColumnDefinitions="0.5*,0.5*">
+            <HorizontalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="10">
+                <Label Text="From: " TextColor="Black"/>
+                <Label x:Name="StartDateLabel" Text="Select Start Date" TextColor="Blue" FontSize="14"
+                    GestureRecognizers="{TapGestureRecognizer Tapped='OnStartDateLabelTapped'}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="10">
+                <Label Text="To: " TextColor="Black"/>
+                <Label x:Name="EndDateLabel" Text="Select End Date" TextColor="Blue" FontSize="14"
+                    GestureRecognizers="{TapGestureRecognizer Tapped='OnEndDateLabelTapped'}"/>
+            </HorizontalStackLayout>
 
-        <Grid Margin="10" ColumnDefinitions="0.3*,0.3*,0.15*,0.25*">
-            <HorizontalStackLayout Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Start">
-                <Label Text="From:" TextColor="Black" HorizontalOptions="Start"/>
-                <DatePicker x:Name="StartDatePicker" TextColor="Black" HorizontalOptions="Start" WidthRequest="150"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Start">
-                <Label Text="To:" TextColor="Black" HorizontalOptions="Start"/>
-                <DatePicker x:Name="EndDatePicker" TextColor="Black" HorizontalOptions="Start" WidthRequest="150"/>
-            </HorizontalStackLayout>
-            <ImageButton Grid.Column="2" Source="search.png" HeightRequest="50"
-                     Clicked="OnFetchDataClicked" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <!--<ImageButton Grid.Column="2" Source="search.png" HeightRequest="50"
+                     Clicked="OnFetchDataClicked" VerticalOptions="Center" HorizontalOptions="Center"/>-->
         </Grid>
 
+        <DatePicker x:Name="HiddenDatePicker" IsVisible="False" DateSelected="OnDateSelected"  HorizontalOptions="CenterAndExpand" BackgroundColor="DarkSlateGrey"/>
         <!--<Label Text="Charts - Data Analysis" FontSize="Medium" TextColor="Black" Margin="10,30,0,0" />
         <Image Source="graph_trial.png" Aspect="AspectFit" WidthRequest="300"/>-->
     </VerticalStackLayout>

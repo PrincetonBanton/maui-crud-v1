@@ -133,6 +133,10 @@ namespace MauiCrud.Pages
             }
             ((ListView)sender).SelectedItem = null;
         }
+        private void OnDateSelected(object sender, DateChangedEventArgs e)
+        {
+            formattedDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
+        }
         private void BindExpenseToForm()
         {
             descriptionEntry.Text = _currentExpense.Description;
@@ -148,5 +152,6 @@ namespace MauiCrud.Pages
             expenseDatePicker.Date = DateTime.Now;
             categoryPicker.SelectedItem = null;
         }
+
     }
 }
