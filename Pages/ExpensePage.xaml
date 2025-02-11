@@ -13,7 +13,7 @@
         <!--<DatePicker x:Name="expenseDatePicker" Date="{Binding CurrentDate}" TextColor="Black" />-->
 
         <StackLayout>
-            <DatePicker x:Name="expenseDatePicker" DateSelected="OnDateSelected"/>
+            <DatePicker x:Name="expenseDatePicker" DateSelected="OnDateSelected" TextColor="Black"  Format="MM/dd/yyyy"/>
             <Label x:Name="formattedDateLabel" Text="{Binding CurrentDate}" TextColor="Black" FontSize="14"/>
         </StackLayout>
 

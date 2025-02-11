@@ -12,40 +12,26 @@ public partial class DashBoard : ContentPage
         InitializeComponent();
         StartDateLabel.Text = DateTime.Now.AddMonths(-1).ToString("MM/dd/yyyy"); // 1 month ago
         EndDateLabel.Text = DateTime.Now.ToString("MM/dd/yyyy"); // Today
-
     }
-
-    private void OnStartDateLabelTapped(object sender, EventArgs e)
-    {
-        _isSelectingStartDate = true;
-        HiddenDatePicker.IsVisible = true; 
-        HiddenDatePicker.Focus();
-    }
-
-    private void OnEndDateLabelTapped(object sender, EventArgs e)
-    {
-        _isSelectingStartDate = false;
-        HiddenDatePicker.IsVisible = true; 
-        HiddenDatePicker.Focus();
-    }
-
-
-    private void OnDateSelected(object sender, DateChangedEventArgs e)
-    {
-        if (_isSelectingStartDate)
-            StartDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
-        else
-            EndDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
-
-        HiddenDatePicker.IsVisible = false;
-    }
-
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await ConnectivityService.Instance.CheckAndUpdateConnectivityAsync();
         UpdateFontSize();
         await FetchTotalsAsync(showAlert: false);
+    }
+
+
+    private void OnDateSelected(object sender, DateChangedEventArgs e)
+    {
+        if (sender == StartDatePicker)
+        {
+            StartDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
+        }
+        else if (sender == EndDatePicker) 
+        {
+            EndDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
+        }
     }
 
     private async void OnFetchDataClicked(object sender, EventArgs e)

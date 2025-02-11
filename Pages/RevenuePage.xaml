@@ -11,7 +11,7 @@
     <Entry x:Name="descriptionEntry" Placeholder="Description" TextColor="black"/>
     <Entry x:Name="amountEntry" Placeholder="Amount" TextColor="black" Keyboard="Numeric"/>
     <Entry x:Name="clientEntry" Placeholder="Client" TextColor="black"/>
-    <DatePicker x:Name="arrivedDatePicker" Date="{Binding CurrentDate}" TextColor="Black"/>
+        <DatePicker x:Name="arrivedDatePicker" Date="{Binding CurrentDate}" TextColor="Black"  Format="MM/dd/yyyy"/>
     <Button Text="Save" Clicked="OnSaveButtonClicked" Margin="0,0,0,20" BackgroundColor="Blue"/>
 
     <ListView x:Name="revenueListView" HasUnevenRows="True" BackgroundColor="Grey" ItemTapped="RevenueListView_ItemTapped">
