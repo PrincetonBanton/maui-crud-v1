@@ -64,25 +64,39 @@ namespace MauiCrud.Pages
             await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");
         }
 
-        private async void LoadOnlineData()
+        private async void LoadOnlineData() => expenseCategoryListView.ItemsSource = await _apiService.GetExpenseCategoryAsync();
+        private async void LoadOfflineData() => expenseCategoryListView.ItemsSource = await _databaseService.GetExpenseCategoryAsync();
+
+        private async Task<bool> ValidateExpenseCategoryInput()
         {
-            expenseCategoryListView.ItemsSource = await _apiService.GetExpenseCategoryAsync();
-        }
-        private async void LoadOfflineData()
-        {
-            expenseCategoryListView.ItemsSource = await _databaseService.GetExpenseCategoryAsync();
+            if (string.IsNullOrWhiteSpace(nameEntry.Text))
+            {
+                await DisplayAlert("Validation Error", "Category name is required.", "OK");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(descriptionEntry.Text))
+            {
+                await DisplayAlert("Validation Error", "Description is required.", "OK");
+                return false;
+            }
+
+            return true;
         }
 
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
+            if (!await ValidateExpenseCategoryInput())
+                return;
+
             _currentExpenseCategory.Name = nameEntry.Text;
             _currentExpenseCategory.Description = descriptionEntry.Text;
 
             if (_isInternetAvailable)
             {
                 var result = _currentExpenseCategory.ExpenseCategoryId == 0
-                    ? _apiService.CreateExpenseCategoryAsync(_currentExpenseCategory)
-                    : _apiService.UpdateExpenseCategoryAsync(_currentExpenseCategory);
+                    ? await _apiService.CreateExpenseCategoryAsync(_currentExpenseCategory)
+                    : await _apiService.UpdateExpenseCategoryAsync(_currentExpenseCategory);
                 LoadOnlineData();
             }
             else
@@ -93,7 +107,7 @@ namespace MauiCrud.Pages
                 LoadOfflineData();
             }
 
-            await DisplayAlert("Success", "Expense saved.", "OK");
+            await DisplayAlert("Success", "Expense category saved.", "OK");
             ClearForm();
         }
 
