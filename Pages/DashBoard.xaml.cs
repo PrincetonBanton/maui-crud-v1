@@ -21,18 +21,8 @@ public partial class DashBoard : ContentPage
         await FetchTotalsAsync(showAlert: false);
     }
 
-
     private void OnDateSelected(object sender, DateChangedEventArgs e)
-    {
-        if (sender == StartDatePicker)
-        {
-            StartDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
-        }
-        else if (sender == EndDatePicker) 
-        {
-            EndDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
-        }
-    }
+        => (sender == StartDatePicker ? StartDateLabel : EndDateLabel).Text = e.NewDate.ToString("MM/dd/yyyy");
 
     private async void OnFetchDataClicked(object sender, EventArgs e)
         => await FetchTotalsAsync(showAlert: true);
@@ -86,4 +76,16 @@ public partial class DashBoard : ContentPage
         int maxLength = Math.Max(expenseText.Length, revenueText.Length);
         return Math.Max(50 - Math.Max(0, (maxLength - 6) * 5), 20);
     }
+
+    private void OnDatePickerFocused(object sender, FocusEventArgs e)
+    {
+        if (sender is DatePicker datePicker)
+            datePicker.TextColor = Colors.Red;
+    }
+    private void OnDatePickerUnfocused(object sender, FocusEventArgs e)
+    {
+        if (sender is DatePicker datePicker)
+            datePicker.TextColor = Colors.Red;
+    }
+
 }

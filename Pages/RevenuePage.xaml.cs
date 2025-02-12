@@ -66,23 +66,47 @@ namespace MauiCrud.Pages
             }
             await DisplayAlert("Migration Complete", "All local revenues have been migrated to the API.", "OK");
         }
-        private async void LoadOnlineData()
-            => revenueListView.ItemsSource = await _apiService.GetRevenuesAsync();
-        private async void LoadOfflineData()
-            => revenueListView.ItemsSource = await _databaseService.GetRevenuesAsync();
+        private async void LoadOnlineData() => revenueListView.ItemsSource = await _apiService.GetRevenuesAsync();
+        private async void LoadOfflineData() => revenueListView.ItemsSource = await _databaseService.GetRevenuesAsync();
+
+        private async Task<bool> ValidateRevenueInput()
+        {
+            if (string.IsNullOrWhiteSpace(descriptionEntry.Text))
+            {
+                await DisplayAlert("Validation Error", "Description is required.", "OK");
+                return false;
+            }
+
+            if (!decimal.TryParse(amountEntry.Text, out var amount) || amount <= 0)
+            {
+                await DisplayAlert("Validation Error", "Please enter a valid amount greater than 0.", "OK");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(clientEntry.Text))
+            {
+                await DisplayAlert("Validation Error", "Client name is required.", "OK");
+                return false;
+            }
+
+            return true;
+        }
 
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
+            if (!await ValidateRevenueInput())
+                return;
+
             _currentRevenue.Description = descriptionEntry.Text;
-            _currentRevenue.Amount = decimal.TryParse(amountEntry.Text, out var amount) ? amount : 0;
+            _currentRevenue.Amount = decimal.Parse(amountEntry.Text);
             _currentRevenue.Client = clientEntry.Text;
             _currentRevenue.ArrivedDate = arrivedDatePicker.Date;
 
             if (_isInternetAvailable)
             {
                 var result = _currentRevenue.RevenueId == 0
-                    ? _apiService.CreateRevenueAsync(_currentRevenue)
-                    : _apiService.UpdateRevenueAsync(_currentRevenue);
+                    ? await _apiService.CreateRevenueAsync(_currentRevenue)
+                    : await _apiService.UpdateRevenueAsync(_currentRevenue);
                 LoadOnlineData();
             }
             else
@@ -92,9 +116,11 @@ namespace MauiCrud.Pages
                     : await _databaseService.UpdateRevenueAsync(_currentRevenue);
                 LoadOfflineData();
             }
+
             await DisplayAlert("Success", "Revenue saved.", "OK");
             ClearForm();
         }
+
 
         private async void RevenueListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {

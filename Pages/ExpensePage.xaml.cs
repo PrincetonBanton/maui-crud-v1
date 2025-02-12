@@ -1,6 +1,5 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
-using MauiCrud.Pages;
 
 namespace MauiCrud.Pages
 {
@@ -80,21 +79,47 @@ namespace MauiCrud.Pages
             categoryPicker.ItemsSource = await _databaseService.GetExpenseCategoryAsync();
             expenseListView.ItemsSource = await _databaseService.GetExpensesAsync();
         }
+        private async Task<bool> ValidateExpenseInput()
+        {
+            if (string.IsNullOrWhiteSpace(descriptionEntry.Text))
+            {
+                await DisplayAlert("Validation Error", "Description is required.", "OK");
+                return false;
+            }
+
+            if (!decimal.TryParse(amountEntry.Text, out var amount) || amount <= 0)
+            {
+                await DisplayAlert("Validation Error", "Please enter a valid amount greater than 0.", "OK");
+                return false;
+            }
+
+            if (categoryPicker.SelectedItem is not ExpenseCategory)
+            {
+                await DisplayAlert("Validation Error", "Please select a category.", "OK");
+                return false;
+            }
+
+            return true;
+        }
 
         private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
-            _currentExpense.Description = descriptionEntry.Text;
-            _currentExpense.Amount = decimal.TryParse(amountEntry.Text, out var amount) ? amount : 0;
-            _currentExpense.ExpenseDate = expenseDatePicker.Date;
-            _currentExpense.ExpenseCategoryId = (categoryPicker.SelectedItem as ExpenseCategory)?.ExpenseCategoryId ?? 0;
+            if (!await ValidateExpenseInput())
+                return;
 
-            if (_isInternetAvailable) 
+            _currentExpense.Description = descriptionEntry.Text;
+            _currentExpense.Amount = decimal.Parse(amountEntry.Text);
+            _currentExpense.ExpenseDate = expenseDatePicker.Date;
+            _currentExpense.ExpenseCategoryId = ((ExpenseCategory)categoryPicker.SelectedItem).ExpenseCategoryId;
+
+            if (_isInternetAvailable)
             {
                 var result = _currentExpense.ExpenseId == 0
-                    ? _apiService.CreateExpenseAsync(_currentExpense)
-                    : _apiService.UpdateExpenseAsync(_currentExpense);
+                    ? await _apiService.CreateExpenseAsync(_currentExpense)
+                    : await _apiService.UpdateExpenseAsync(_currentExpense);
                 LoadOnlineData();
-            } else 
+            }
+            else
             {
                 var result = _currentExpense.ExpenseId == 0
                     ? await _databaseService.SaveExpenseAsync(_currentExpense)
@@ -102,9 +127,10 @@ namespace MauiCrud.Pages
                 LoadOfflineData();
             }
 
-            await DisplayAlert("Success" , "Expense saved." , "OK");
+            await DisplayAlert("Success", "Expense saved.", "OK");
             ClearForm();
         }
+
 
         private async void ExpenseListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
@@ -133,16 +159,13 @@ namespace MauiCrud.Pages
             }
             ((ListView)sender).SelectedItem = null;
         }
-        private void OnDateSelected(object sender, DateChangedEventArgs e)
-        {
-            formattedDateLabel.Text = e.NewDate.ToString("MM/dd/yyyy");
-        }
         private void BindExpenseToForm()
         {
             descriptionEntry.Text = _currentExpense.Description;
             amountEntry.Text = _currentExpense.Amount > 0 ? _currentExpense.Amount.ToString() : string.Empty;
             expenseDatePicker.Date = _currentExpense.ExpenseDate != default ? _currentExpense.ExpenseDate : DateTime.Now;
-            categoryPicker.SelectedItem = _currentExpense.ExpenseCategory;
+            categoryPicker.SelectedItem = (categoryPicker.ItemsSource as List<ExpenseCategory>)?
+                .FirstOrDefault(c => c.ExpenseCategoryId == _currentExpense.ExpenseCategoryId);
         }
         private void ClearForm()
         {
