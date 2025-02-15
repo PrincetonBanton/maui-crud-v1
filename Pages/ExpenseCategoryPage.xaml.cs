@@ -1,6 +1,7 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
 using MauiCrud.Pages;
+using MauiCrud.Wrappers;
 
 namespace MauiCrud.Pages
 {
@@ -52,13 +53,13 @@ namespace MauiCrud.Pages
 
                 try
                 {
-                    bool success = await _apiService.CreateExpenseCategoryAsync(apiExpenseCategory);
-                    if (success) await _databaseService.DeleteExpenseCategoryAsync(expenseCategory.ExpenseCategoryId);
-                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expenseCategory.Description}.", "OK");
+                    ApiResponse response = await _apiService.CreateExpenseCategoryAsync(apiExpenseCategory);
+                    if (response.IsSuccess) await _databaseService.DeleteExpenseCategoryAsync(expenseCategory.ExpenseCategoryId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expenseCategory.Description}. ex: {response.Message}", "OK");
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to migrate expense: {expenseCategory.Description}. Check logs for details.", "OK");
+                    await DisplayAlert("Error", $"Failed to migrate expense: {expenseCategory.Description}. ex: {ex.Message}.", "OK");
                 }
             }
             await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");

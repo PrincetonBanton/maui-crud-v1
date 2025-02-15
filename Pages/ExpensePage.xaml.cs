@@ -1,5 +1,6 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
+using MauiCrud.Wrappers;
 
 namespace MauiCrud.Pages
 {
@@ -57,13 +58,13 @@ namespace MauiCrud.Pages
 
                 try
                 {
-                    bool success = await _apiService.CreateExpenseAsync(apiExpense);
-                    if (success) await _databaseService.DeleteExpenseAsync(expense.ExpenseId);
-                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expense.Description}.", "OK");
+                    ApiResponse response = await _apiService.CreateExpenseAsync(apiExpense);
+                    if (response.IsSuccess) await _databaseService.DeleteExpenseAsync(expense.ExpenseId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {expense.Description}. ex: {response.Message}", "OK");
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to migrate expense: {expense.Description}. Check logs for details.", "OK");
+                    await DisplayAlert("Error", $"Failed to migrate expense: {expense.Description}. ex: {ex.Message} Check logs for details.", "OK");
                 }
             }
             await DisplayAlert("Migration Complete", "All local expenses have been migrated to the API.", "OK");

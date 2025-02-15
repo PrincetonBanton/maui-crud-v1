@@ -1,6 +1,7 @@
 using MauiCrud.Models;
 using MauiCrud.Services;
 using MauiCrud.Pages;
+using MauiCrud.Wrappers;
 
 namespace MauiCrud.Pages
 {
@@ -55,9 +56,9 @@ namespace MauiCrud.Pages
 
                 try
                 {
-                    bool success = await _apiService.CreateRevenueAsync(apiRevenue);
-                    if (success) await _databaseService.DeleteRevenueAsync(revenue.RevenueId);
-                    else await DisplayAlert("Migration Error", $"Failed to migrate: {revenue.Description}.", "OK");
+                    ApiResponse response = await _apiService.CreateRevenueAsync(apiRevenue);
+                    if (response.IsSuccess) await _databaseService.DeleteRevenueAsync(revenue.RevenueId);
+                    else await DisplayAlert("Migration Error", $"Failed to migrate: {revenue.Description}. ex: {response.Message}", "OK");
                 }
                 catch (Exception ex)
                 {

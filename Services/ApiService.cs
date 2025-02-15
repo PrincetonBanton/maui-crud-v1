@@ -1,11 +1,13 @@
-﻿using System.Net.Http.Json;
-using MauiCrud.Models;
+﻿using MauiCrud.Models;
+using MauiCrud.Wrappers;
+using System.Net.Http.Json;
 
 namespace MauiCrud.Services
 {
     public class ApiService
     {
         private const string BaseUrl = "https://localhost:7236/api";
+        //private const string BaseUrl = "http://192.168.254.116:8080/api";
         private readonly HttpClient _httpClient = new();
 
         private async Task<T?> RequestAsync<T>(Func<Task<T?>> request, string errorMessage)
@@ -13,23 +15,54 @@ namespace MauiCrud.Services
             try { return await request(); }
             catch (Exception ex) { Console.WriteLine($"{errorMessage}: {ex.Message}"); return default; }
         }
+        
+        private async Task<T> GetAsync<T>(string endpoint) where T : class, new()
+        {
+            var result = await RequestAsync(() => _httpClient.GetFromJsonAsync<T>($"{BaseUrl}/{endpoint}"), "Error fetching data");
+            return result ?? new T(); // Ensure result is never null
+        }
 
-        private Task<T?> GetAsync<T>(string endpoint)
-            => RequestAsync(() => _httpClient.GetFromJsonAsync<T>($"{BaseUrl}/{endpoint}"), "Error fetching data");
-
-        private Task<bool> PostAsync<T>(string endpoint, T data)
-            => RequestAsync(async () =>
+        private Task<ApiResponse> PostAsync<T>(string endpoint, T data)
+        {
+            return RequestAsync(async () =>
             {
                 var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/{endpoint}", data);
-                return response.IsSuccessStatusCode;
-            }, "Error creating data");
+                var result = new ApiResponse
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    Message = response.IsSuccessStatusCode ? "Request successful" : $"Error: {response.ReasonPhrase}"
+                };
 
-        private Task<bool> PutAsync<T>(string endpoint, T data)
-            => RequestAsync(async () =>
+                if (response.IsSuccessStatusCode)
+                {
+                    result.Result = await response.Content.ReadAsStringAsync(); // Deserialize if needed
+                }
+
+                return result;
+            }, "Error creating data")!; // Ensure non-nullable return type
+        }
+        
+        private async Task<ApiResponse> PutAsync<T>(string endpoint, T data)
+        {
+            var result = await RequestAsync(async () =>
             {
                 var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{endpoint}", data);
-                return response.IsSuccessStatusCode;
+                var apiResponse = new ApiResponse
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    Message = response.IsSuccessStatusCode ? "Request successful" : $"Error: {response.ReasonPhrase}"
+                };
+
+                if (response.IsSuccessStatusCode)
+                {
+                    apiResponse.Result = await response.Content.ReadAsStringAsync(); // Deserialize if needed
+                }
+
+                return apiResponse;
             }, "Error updating data");
+
+            return result ?? new ApiResponse { IsSuccess = false, Message = "Unknown error" };
+        }
 
         private Task<bool> DeleteAsync(string endpoint)
             => RequestAsync(async () =>
@@ -37,48 +70,53 @@ namespace MauiCrud.Services
                 var response = await _httpClient.DeleteAsync($"{BaseUrl}/{endpoint}");
                 return response.IsSuccessStatusCode;
             }, "Error deleting data");
-
-        // Expense Category Methods
+        
+        #region Expense Category Methods
         public Task<List<ExpenseCategory>> GetExpenseCategoryAsync()
             => GetAsync<List<ExpenseCategory>>("expensecategories") ?? Task.FromResult(new List<ExpenseCategory>());
-        public Task<bool> CreateExpenseCategoryAsync(ExpenseCategory category)
+        public Task<ApiResponse> CreateExpenseCategoryAsync(ExpenseCategory category)
             => PostAsync("expensecategory", category);
-        public Task<bool> UpdateExpenseCategoryAsync(ExpenseCategory category)
+        public Task<ApiResponse> UpdateExpenseCategoryAsync(ExpenseCategory category)
             => PutAsync($"expensecategory/{category.ExpenseCategoryId}", category);
         public Task<bool> DeleteExpenseCategoryAsync(int id)
             => DeleteAsync($"expensecategory/{id}");
+        #endregion
 
-        // Expense Methods
-        public Task<List<Expense>> GetExpensesAsync()
-            => GetAsync<List<Expense>>("expenses") ?? Task.FromResult(new List<Expense>());
-        public Task<bool> CreateExpenseAsync(Expense expense)
+        #region Expense Methods
+        public Task<List<Expense>> GetExpensesAsync() => GetAsync<List<Expense>>("expenses");
+        public Task<ApiResponse> CreateExpenseAsync(Expense expense)
             => PostAsync("expenses", expense);
-        public Task<bool> UpdateExpenseAsync(Expense expense)
+        public Task<ApiResponse> UpdateExpenseAsync(Expense expense)
             => PutAsync($"expenses/{expense.ExpenseId}", expense);
         public Task<bool> DeleteExpenseAsync(int id)
-            => DeleteAsync($"expenses/{id}");
+            => DeleteAsync($"expenses/{id}"); 
+        #endregion
 
-        // Revenue Methods
-        public Task<List<Revenue>> GetRevenuesAsync()
-            => GetAsync<List<Revenue>>("revenues") ?? Task.FromResult(new List<Revenue>());
-        public Task<bool> CreateRevenueAsync(Revenue revenue)
+        #region Revenue Methods
+        public Task<List<Revenue>> GetRevenuesAsync() => GetAsync<List<Revenue>>("revenues");
+
+        public Task<ApiResponse> CreateRevenueAsync(Revenue revenue)
             => PostAsync("revenues", revenue);
-        public Task<bool> UpdateRevenueAsync(Revenue revenue)
+        public Task<ApiResponse> UpdateRevenueAsync(Revenue revenue)
             => PutAsync($"revenues/{revenue.RevenueId}", revenue);
         public Task<bool> DeleteRevenueAsync(int id)
             => DeleteAsync($"revenues/{id}");
+        #endregion
 
-        //Date Filter
+        #region Date Filter
         public async Task<decimal?> GetTotalExpenseAsync(string startDate, string endDate)
         {
             var endpoint = $"totalexpense?startDate={startDate}&endDate={endDate}";
-            return await GetAsync<decimal>(endpoint);
+            var result = await RequestAsync(() => _httpClient.GetFromJsonAsync<decimal?>($"{BaseUrl}/{endpoint}"), "Error fetching data");
+            return result;
         }
 
         public async Task<decimal?> GetTotalIncomeAsync(string startDate, string endDate)
         {
             var endpoint = $"totalincome?startDate={startDate}&endDate={endDate}";
-            return await GetAsync<decimal>(endpoint);
-        }
+            var result = await RequestAsync(() => _httpClient.GetFromJsonAsync<decimal?>($"{BaseUrl}/{endpoint}"), "Error fetching data");
+            return result;
+        } 
+        #endregion
     }
 }
